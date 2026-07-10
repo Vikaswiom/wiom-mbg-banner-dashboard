@@ -10,6 +10,13 @@ URL = "https://metabase.wiom.in/api/dataset"
 IST = timezone(timedelta(hours=5, minutes=30))
 
 
+def log(msg):
+    line = datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S") + "  " + msg
+    print(line)
+    with open(os.path.join(REPO, "refresh.log"), "a", encoding="utf-8") as f:
+        f.write(line + "\n")
+
+
 def run_sql(sql):
     payload = {"database": 113, "type": "native", "native": {"query": sql}}
     req = urllib.request.Request(
@@ -27,6 +34,7 @@ def by_group(rows):
 
 
 def main():
+    log("start")
     csp = by_group(run_sql(open(os.path.join(REPO, "query_csp_funnel.sql")).read()))
     conn = by_group(run_sql(open(os.path.join(REPO, "query_connection_funnel.sql")).read()))
 
@@ -73,13 +81,17 @@ def main():
     status = subprocess.run(["git", "-C", REPO, "status", "--porcelain", "data.js"],
                             capture_output=True, text=True).stdout.strip()
     if not status:
-        print(now.isoformat(), "no change")
+        log("no change")
         return
     git("-c", "user.name=Vikaswiom", "-c", "user.email=design.3@wiom.in",
         "commit", "-m", "chore: hourly data refresh " + data["last_updated"])
     git("push", "origin", "main")
-    print(now.isoformat(), "pushed:", data["last_updated"])
+    log("pushed: " + data["last_updated"])
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:
+        log("ERROR: " + repr(exc))
+        raise
