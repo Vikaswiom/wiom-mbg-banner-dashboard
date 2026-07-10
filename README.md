@@ -29,11 +29,22 @@ Stage flags: Slot = `CONFIRMED_SLOT_AT` · Technician = `EXECUTOR_ID` · Install
 
 ## Files
 
-- `index.html` — the dashboard (self-contained, no build step)
+- `index.html` — the dashboard (renders from `data.js`)
+- `data.js` — the numbers + `last_updated` timestamp (auto-generated hourly)
+- `refresh.py` — re-runs the queries, regenerates `data.js`, commits & pushes
 - `query_csp_funnel.sql` — engagement + per-CSP funnel + click distribution
 - `query_connection_funnel.sql` — per-connection install output funnel
 
-## Refresh
+## Auto-refresh (hourly)
 
-Re-run the two SQL files against Metabase (Snowflake, database 113) and update the data
-arrays near the bottom of `index.html`.
+`refresh.py` re-runs both queries against Metabase (Snowflake, database 113),
+rewrites `data.js` with fresh numbers and an IST `last_updated` stamp, then commits
+and pushes — so GitHub Pages serves the latest data within a minute. The dashboard
+header shows **"Auto-refreshes hourly"** and the last-updated time.
+
+It runs unattended via **Windows Task Scheduler** (task `WIOM-MBG-Dashboard-Refresh`,
+trigger: every 1 hour). Run manually any time with:
+
+```
+python refresh.py
+```

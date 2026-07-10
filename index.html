@@ -64,6 +64,10 @@
     padding: 4px 11px; display: inline-flex; gap: 6px; align-items: center;
   }
   .tag b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .tag.live { border-color: color-mix(in srgb, var(--good) 40%, var(--hair)); background: color-mix(in srgb, var(--good) 8%, var(--surface)); color: var(--good); font-weight: 620; }
+  .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--good); animation: pulse 2.4s infinite; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--good) 55%,transparent);} 70%{box-shadow:0 0 0 6px transparent;} 100%{box-shadow:0 0 0 0 transparent;} }
+  @media (prefers-reduced-motion: reduce) { .pulse { animation: none; } }
 
   .section-label {
     font-size: 12px; font-weight: 650; letter-spacing: .07em; text-transform: uppercase;
@@ -71,7 +75,6 @@
   }
   .section-label span { font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--muted); font-size: 12px; }
 
-  /* KPI tiles */
   .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
   .kpi {
     background: var(--surface); border: 1px solid var(--hair); border-radius: var(--r);
@@ -87,14 +90,12 @@
     background: var(--surface); border: 1px solid var(--hair); border-radius: var(--r);
     box-shadow: var(--shadow); padding: 22px 24px 24px;
   }
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 
-  /* distribution bars */
   .dist { display: flex; flex-direction: column; gap: 13px; margin-top: 4px; }
-  .dist-row { display: grid; grid-template-columns: 92px 1fr 96px; align-items: center; gap: 14px; }
+  .dist-row { display: grid; grid-template-columns: 92px 1fr 116px; align-items: center; gap: 14px; }
   .dist-row .dl { font-size: 13.5px; color: var(--ink-2); font-weight: 550; }
   .dist-track { height: 26px; background: var(--track); border-radius: 6px; overflow: hidden; }
-  .dist-fill { height: 100%; border-radius: 6px; background: var(--mbg); transition: width .2s; }
+  .dist-fill { height: 100%; border-radius: 6px; background: var(--mbg); }
   .dist-row .dv { font-size: 13px; text-align: right; color: var(--ink-2); font-variant-numeric: tabular-nums; }
   .dist-row .dv b { color: var(--ink); font-weight: 650; }
   .callout {
@@ -103,8 +104,7 @@
   }
   .callout b { color: var(--ink); }
 
-  /* funnel */
-  .fn-head { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+  .fn-head { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
   .fn-title { font-size: 16px; font-weight: 670; letter-spacing: -.01em; }
   .fn-note { font-size: 12.5px; color: var(--muted); }
   .legend { display: flex; gap: 16px; margin-left: auto; }
@@ -119,7 +119,7 @@
   .bars { display: flex; flex-direction: column; gap: 6px; }
   .bar-line { display: flex; align-items: center; gap: 10px; height: 22px; }
   .bar-track { flex: 1; height: 22px; background: var(--track); border-radius: 5px; overflow: hidden; position: relative; }
-  .bar { height: 100%; border-radius: 5px; display: flex; align-items: center; }
+  .bar { height: 100%; border-radius: 5px; }
   .bar.mbg { background: var(--mbg); } .bar.non { background: var(--non); }
   .bar-val { font-size: 12.5px; font-variant-numeric: tabular-nums; min-width: 118px; color: var(--ink-2); }
   .bar-val b { color: var(--ink); font-weight: 650; }
@@ -130,6 +130,7 @@
   .ct .ctl { font-size: 12px; color: var(--muted); font-weight: 550; margin-bottom: 6px; }
   .ct .ctv { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
   .ct .ctv .x { font-size: 13px; color: var(--good); font-weight: 650; margin-left: 6px; }
+  .ct .ctv .m { font-size: 13px; color: var(--muted); font-weight: 500; }
 
   footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--hair); color: var(--muted); font-size: 12.5px; }
   footer b { color: var(--ink-2); font-weight: 600; }
@@ -137,9 +138,9 @@
 
   @media (max-width: 760px) {
     .kpis { grid-template-columns: repeat(2,1fr); }
-    .grid-2 { grid-template-columns: 1fr; }
     .stage { grid-template-columns: 1fr; gap: 6px; }
-    .dist-row { grid-template-columns: 66px 1fr 84px; }
+    .dist-row { grid-template-columns: 66px 1fr 96px; }
+    .legend { margin-left: 0; }
   }
 </style>
 
@@ -149,80 +150,71 @@
     <h1>MBG Banner Performance &amp; Install Funnel</h1>
     <p class="sub">How the home-screen banner served to the 425 MBG-eligible CSPs is converting into engagement and — ultimately — WiFi installs, benchmarked against the rest of the CSP network.</p>
     <div class="meta">
-      <span class="tag">Window <b>09 Jul → 10 Jul 2026</b></span>
-      <span class="tag">Banner live for <b>425</b> CSPs</span>
-      <span class="tag">Source <b>CleverTap · TAS install candidates</b></span>
+      <span class="tag live"><span class="pulse"></span>Auto-refreshes hourly</span>
+      <span class="tag">Last updated <b id="m-updated">—</b></span>
+      <span class="tag">Window <b id="m-window">—</b></span>
+      <span class="tag">Banner live for <b id="m-live">—</b> CSPs</span>
     </div>
   </header>
 
-  <!-- ENGAGEMENT -->
-  <div class="section-label">Banner Engagement <span>· MBG cohort · <code>banner_opened</code> since 09 Jul</span></div>
+  <div class="section-label">Banner Engagement <span>· MBG cohort · <code>banner_opened</code> since window start</span></div>
   <div class="kpis">
     <div class="kpi accent">
       <p class="k-label">CSPs who clicked</p>
-      <div class="k-val">187</div>
-      <p class="k-sub">of 425 live · <b>44.0%</b> reach</p>
+      <div class="k-val" id="k-clicked">—</div>
+      <p class="k-sub">of <span id="k-live">—</span> live · <b id="k-reach">—</b> reach</p>
     </div>
     <div class="kpi">
       <p class="k-label">Total banner clicks</p>
-      <div class="k-val">508</div>
-      <p class="k-sub">2.72 clicks per clicker</p>
+      <div class="k-val" id="k-clicks">—</div>
+      <p class="k-sub"><span id="k-per">—</span> clicks per clicker</p>
     </div>
     <div class="kpi">
       <p class="k-label">Returned &amp; re-clicked</p>
-      <div class="k-val">51.9%</div>
-      <p class="k-sub">97 clicked 2+ times</p>
+      <div class="k-val" id="k-reclick">—</div>
+      <p class="k-sub"><span id="k-reclick-n">—</span> clicked 2+ times</p>
     </div>
     <div class="kpi">
       <p class="k-label">Power users (4+)</p>
-      <div class="k-val">37</div>
-      <p class="k-sub">19.8% of clickers</p>
+      <div class="k-val" id="k-power">—</div>
+      <p class="k-sub"><span id="k-power-pct">—</span> of clickers</p>
     </div>
   </div>
 
   <div class="card" style="margin-top:18px">
     <div class="fn-head">
       <div class="fn-title">Click-frequency distribution</div>
-      <div class="fn-note">among the 187 CSPs who clicked</div>
+      <div class="fn-note">among the CSPs who clicked</div>
     </div>
     <div class="dist" id="dist"></div>
-    <div class="callout">
-      <b>44% of eligible CSPs engaged</b> with the banner. Most clicked once, but nearly
-      <b>52% returned</b> and clicked again — and 1 in 5 clicked four or more times, a strong repeat-engagement signal for a 2-day window.
-    </div>
+    <div class="callout" id="dist-callout"></div>
   </div>
 
-  <!-- CSP FUNNEL -->
   <div class="section-label">Engagement → Install (per CSP) <span>· did banner-clickers go on to complete installs?</span></div>
   <div class="card">
     <div class="fn-head">
       <div class="fn-title">Banner clickers who progressed</div>
       <div class="fn-note">share of clickers reaching each stage</div>
       <div class="legend">
-        <span class="lg"><span class="dot mbg"></span>MBG (187)</span>
-        <span class="lg"><span class="dot non"></span>Non-MBG (31)</span>
+        <span class="lg"><span class="dot mbg"></span>MBG (<span id="lg-csp-mbg">—</span>)</span>
+        <span class="lg"><span class="dot non"></span>Non-MBG (<span id="lg-csp-non">—</span>)</span>
       </div>
     </div>
     <div class="funnel" id="cspFunnel"></div>
   </div>
 
-  <!-- CONNECTION FUNNEL -->
   <div class="section-label">Install Output Funnel (per connection) <span>· business delivered · MBG vs rest of network</span></div>
   <div class="card">
     <div class="fn-head">
       <div class="fn-title">Booking → WiFi installed</div>
-      <div class="fn-note">all connections handled since 09 Jul · % of that group's connections</div>
+      <div class="fn-note">all connections handled since window start · % of that group's connections</div>
       <div class="legend">
         <span class="lg"><span class="dot mbg"></span>MBG</span>
         <span class="lg"><span class="dot non"></span>Non-MBG</span>
       </div>
     </div>
     <div class="funnel" id="connFunnel"></div>
-    <div class="compare-tiles">
-      <div class="ct"><div class="ctl">Connections handled</div><div class="ctv">690 <span style="font-size:13px;color:var(--muted)">vs 597</span></div></div>
-      <div class="ct"><div class="ctl">WiFi installs completed</div><div class="ctv">21 <span style="font-size:13px;color:var(--muted)">vs 8</span></div></div>
-      <div class="ct"><div class="ctl">Install rate (of connections)</div><div class="ctv">3.0%<span class="x">2.3× Non-MBG</span></div></div>
-    </div>
+    <div class="compare-tiles" id="compare"></div>
   </div>
 
   <footer>
@@ -230,61 +222,95 @@
     <ul>
       <li><b>Cohort:</b> 425 MBG-eligible <code>cspid</code>s. Banner clicks = <code>banner_opened</code> events in <code>CLEVERTAP_CSP_API.EVENTS_DATA</code>, mapped <code>CLEVERTAP_ID → cspid</code> via <code>PROFILE_DATA</code> (each CT id → exactly one cspid, no fan-out).</li>
       <li><b>Install funnel:</b> <code>DBT_CSP.TAS_INSTALL_EXECUTION_CANDIDATES</code> (<code>ETL_CURRENT=TRUE</code>). Slot = <code>CONFIRMED_SLOT_AT</code>, Technician = <code>EXECUTOR_ID</code>, Installed = <code>OTP_VERIFIED</code> / <code>COMPLETED_STEP≥7</code>, joined on <code>CSP_ID</code>.</li>
-      <li><b>Non-MBG banner base is small (31)</b> because the banner is live almost exclusively to the 425 — the per-connection output funnel (right) is the fair network benchmark.</li>
-      <li><b>Immature window:</b> only 09–10 Jul. Most connections are still in flight, so absolute install counts will keep rising; treat rates as directional.</li>
+      <li><b>Non-MBG banner base is small</b> because the banner is live almost exclusively to the 425 — the per-connection output funnel is the fair network benchmark.</li>
+      <li><b>Immature window:</b> most connections are still in flight, so absolute install counts keep rising; treat rates as directional. <b>Data auto-refreshes every hour</b> (Metabase → Snowflake).</li>
     </ul>
   </footer>
 </div>
 
+<script src="data.js"></script>
 <script>
-  const distData = [
-    { label: "1 click",   n: 90, pct: 48.1 },
-    { label: "2 clicks",  n: 42, pct: 22.5 },
-    { label: "3 clicks",  n: 18, pct: 9.6 },
-    { label: "4+ clicks", n: 37, pct: 19.8 },
+  const D = window.DASHBOARD_DATA;
+  const nf = n => Number(n).toLocaleString();
+  const pct = (a, b) => b ? (a / b * 100).toFixed(1) + "%" : "—";
+  const set = (id, v, html) => { const el = document.getElementById(id); if (el) { if (html) el.innerHTML = v; else el.textContent = v; } };
+
+  set("m-updated", D.last_updated);
+  set("m-window", D.window_start + " → " + D.window_end);
+  set("m-live", nf(D.live));
+  set("k-live", nf(D.live));
+
+  const e = D.engagement;
+  const clicked = e.clicked, clicks = e.clicks;
+  const reclick_n = e.c2 + e.c3 + e.c4plus;
+  set("k-clicked", nf(clicked));
+  set("k-reach", pct(clicked, D.live));
+  set("k-clicks", nf(clicks));
+  set("k-per", (clicks / clicked).toFixed(2));
+  set("k-reclick", pct(reclick_n, clicked));
+  set("k-reclick-n", nf(reclick_n));
+  set("k-power", nf(e.c4plus));
+  set("k-power-pct", pct(e.c4plus, clicked));
+
+  const dist = [
+    { label: "1 click",   n: e.c1 },
+    { label: "2 clicks",  n: e.c2 },
+    { label: "3 clicks",  n: e.c3 },
+    { label: "4+ clicks", n: e.c4plus },
   ];
-  const maxN = Math.max(...distData.map(d => d.n));
-  document.getElementById("dist").innerHTML = distData.map(d => `
+  const maxN = Math.max(...dist.map(d => d.n), 1);
+  document.getElementById("dist").innerHTML = dist.map(d => `
     <div class="dist-row">
       <div class="dl">${d.label}</div>
       <div class="dist-track"><div class="dist-fill" style="width:${(d.n/maxN*100).toFixed(1)}%"></div></div>
-      <div class="dv"><b>${d.n}</b> CSPs · ${d.pct}%</div>
+      <div class="dv"><b>${nf(d.n)}</b> CSPs · ${(d.n/clicked*100).toFixed(1)}%</div>
     </div>`).join("");
+  set("dist-callout",
+    `<b>${pct(clicked, D.live)} of eligible CSPs engaged</b> with the banner. Most clicked once, but `
+    + `<b>${pct(reclick_n, clicked)} returned</b> and clicked again — and ${pct(e.c4plus, clicked)} clicked four or more times, a repeat-engagement signal.`, true);
 
-  // CSP-level funnel: base = clickers
-  const cspStages = [
-    { name: "Clicked banner", sub: "engaged",            mbg: 187, non: 31 },
-    { name: "Slot confirmed",  sub: "≥1 slot booked",     mbg: 65,  non: 9 },
-    { name: "Technician assigned", sub: "≥1 executor set", mbg: 53,  non: 8 },
-    { name: "WiFi installed",  sub: "≥1 OTP verified",    mbg: 15,  non: 3 },
-  ];
-  renderFunnel("cspFunnel", cspStages, 187, 31);
+  const cf = D.csp_funnel;
+  set("lg-csp-mbg", nf(cf.mbg.clicked));
+  set("lg-csp-non", nf(cf.non.clicked));
+  renderFunnel("cspFunnel", [
+    { name: "Clicked banner",       sub: "engaged",         m: cf.mbg.clicked, n: cf.non.clicked },
+    { name: "Slot confirmed",       sub: "≥1 slot booked",  m: cf.mbg.slot,    n: cf.non.slot },
+    { name: "Technician assigned",  sub: "≥1 executor set", m: cf.mbg.tech,    n: cf.non.tech },
+    { name: "WiFi installed",       sub: "≥1 OTP verified", m: cf.mbg.install, n: cf.non.install },
+  ], cf.mbg.clicked, cf.non.clicked);
 
-  // Connection-level funnel: base = connections
-  const connStages = [
-    { name: "Connections",     sub: "booked / assigned",  mbg: 690, non: 597 },
-    { name: "Slot proposed",   sub: "PROPOSED_SLOT_DATE",  mbg: 257, non: 155 },
-    { name: "Slot confirmed",  sub: "CONFIRMED_SLOT_AT",   mbg: 149, non: 100 },
-    { name: "Technician assigned", sub: "EXECUTOR_ID",     mbg: 110, non: 57 },
-    { name: "Arrived at site", sub: "ARRIVED / step≥1",    mbg: 29,  non: 12 },
-    { name: "WiFi installed",  sub: "OTP / step≥7",        mbg: 21,  non: 8 },
-  ];
-  renderFunnel("connFunnel", connStages, 690, 597);
+  const co = D.conn_funnel;
+  renderFunnel("connFunnel", [
+    { name: "Connections",         sub: "booked / assigned",  m: co.mbg.connections,   n: co.non.connections },
+    { name: "Slot proposed",       sub: "PROPOSED_SLOT_DATE",  m: co.mbg.slot_proposed, n: co.non.slot_proposed },
+    { name: "Slot confirmed",      sub: "CONFIRMED_SLOT_AT",   m: co.mbg.slot_confirmed,n: co.non.slot_confirmed },
+    { name: "Technician assigned", sub: "EXECUTOR_ID",         m: co.mbg.tech,          n: co.non.tech },
+    { name: "Arrived at site",     sub: "ARRIVED / step≥1",    m: co.mbg.arrived,       n: co.non.arrived },
+    { name: "WiFi installed",      sub: "OTP / step≥7",        m: co.mbg.installed,     n: co.non.installed },
+  ], co.mbg.connections, co.non.connections);
+
+  const rateM = co.mbg.installed / co.mbg.connections * 100;
+  const rateN = co.non.installed / co.non.connections * 100;
+  const ratio = rateN > 0 ? (rateM / rateN).toFixed(1) : "—";
+  document.getElementById("compare").innerHTML = `
+    <div class="ct"><div class="ctl">Connections handled</div><div class="ctv">${nf(co.mbg.connections)} <span class="m">vs ${nf(co.non.connections)}</span></div></div>
+    <div class="ct"><div class="ctl">WiFi installs completed</div><div class="ctv">${nf(co.mbg.installed)} <span class="m">vs ${nf(co.non.installed)}</span></div></div>
+    <div class="ct"><div class="ctl">Install rate (of connections)</div><div class="ctv">${rateM.toFixed(1)}%<span class="x">${ratio}× Non-MBG</span></div></div>`;
 
   function renderFunnel(id, stages, baseM, baseN) {
     document.getElementById(id).innerHTML = stages.map(s => {
-      const pm = (s.mbg / baseM * 100), pn = (s.non / baseN * 100);
+      const pm = baseM ? s.m / baseM * 100 : 0, pn = baseN ? s.n / baseN * 100 : 0;
       return `
       <div class="stage">
         <div class="s-name">${s.name}<small>${s.sub}</small></div>
         <div class="bars">
           <div class="bar-line">
             <div class="bar-track"><div class="bar mbg" style="width:${pm.toFixed(1)}%"></div></div>
-            <div class="bar-val"><b>${s.mbg.toLocaleString()}</b> <span class="pct">· ${pm.toFixed(1)}%</span></div>
+            <div class="bar-val"><b>${nf(s.m)}</b> <span class="pct">· ${pm.toFixed(1)}%</span></div>
           </div>
           <div class="bar-line">
             <div class="bar-track"><div class="bar non" style="width:${pn.toFixed(1)}%"></div></div>
-            <div class="bar-val"><b>${s.non.toLocaleString()}</b> <span class="pct">· ${pn.toFixed(1)}%</span></div>
+            <div class="bar-val"><b>${nf(s.n)}</b> <span class="pct">· ${pn.toFixed(1)}%</span></div>
           </div>
         </div>
       </div>`;
