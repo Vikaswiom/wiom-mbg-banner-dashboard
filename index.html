@@ -100,6 +100,8 @@
   .gtrack { flex:1; height:24px; background:var(--track); border-radius:6px; overflow:hidden; }
   .gfill { height:100%; border-radius:6px; min-width:2px; transition:width .5s cubic-bezier(.2,.7,.3,1); }
   .gfill.a{background:var(--segA);} .gfill.b{background:var(--segB);} .gfill.c{background:var(--segC);} .gfill.d{background:var(--segD);}
+  .gfill.jun{background:var(--segC);} .gfill.jul{background:var(--segA);}
+  .lg.jun .dot{background:var(--segC);} .lg.jul .dot{background:var(--segA);}
   .gval { font-size:12.5px; font-variant-numeric:tabular-nums; min-width:132px; color:var(--ink-2); }
   .gval b { color:var(--ink); font-weight:660; } .gval .pct { color:var(--muted); }
   .legendrow { display:flex; gap:18px; margin-top:4px; }
@@ -221,6 +223,22 @@
     <div class="callout" id="task-callout">—</div>
   </div>
 
+  <!-- COMPLETION TIERS: JUNE vs JULY -->
+  <div class="section-label">Monthly view — completion tiers <span>· June vs July · of CSPs with ≥5 tasks, what share did they install?</span></div>
+  <div class="card">
+    <div class="fn-head">
+      <div class="fn-title">How many CSPs install a high share of their tasks?</div>
+      <div class="legendrow">
+        <span class="lg jun"><span class="dot"></span>June</span>
+        <span class="lg jul"><span class="dot"></span>July (to date)</span>
+      </div>
+    </div>
+    <div class="fn-note">Two events only: task assigned → WiFi installed, per CSP. Bar = share of that month's ≥5-task CSPs in each completion tier.</div>
+    <div class="gfunnel" id="tiers"></div>
+    <div class="kpis2" id="tier-tiles" style="margin-top:18px"></div>
+    <div class="callout" id="tier-callout">—</div>
+  </div>
+
   <!-- ENGAGEMENT -->
   <div class="section-label">Banner engagement <span>· segment A · how often clickers opened it</span></div>
   <div class="card">
@@ -328,6 +346,27 @@
     + `(${trB.toFixed(1)}%) perform almost the same as the <span class="c2">Non-MBG</span> network (${trC.toFixed(1)}%) — `
     + `being on the MBG list alone doesn't lift installs. The CSPs who actually <b>opened the banner finish ${txAB}× more of their tasks</b>. `
     + `<i>July is still maturing (~97% of installs land within 3 days), so B &amp; C may edge up.</i>`, true);
+
+  // completion tiers — June vs July distribution (share of ≥5-task CSPs per tier)
+  if (D.tiers && D.tiers.june && D.tiers.july) {
+    const jun = D.tiers.june, jul = D.tiers.july;
+    const tierLabels = ["0%","1–19%","20–39%","40–59%","60–79%","80–100%"];
+    document.getElementById("tiers").innerHTML = tierLabels.map((lbl,i) =>
+      row(lbl, i>=4 ? "high completion" : (i===0 ? "installed none" : ""), [
+        ["jun", jun.csps ? jun.b[i]/jun.csps*100 : 0, `<b>${nf(jun.b[i])}</b> <span class="pct">· ${jun.csps?(jun.b[i]/jun.csps*100).toFixed(0):0}%</span>`],
+        ["jul", jul.csps ? jul.b[i]/jul.csps*100 : 0, `<b>${nf(jul.b[i])}</b> <span class="pct">· ${jul.csps?(jul.b[i]/jul.csps*100).toFixed(0):0}%</span>`],
+      ])
+    ).join("");
+    document.getElementById("tier-tiles").innerHTML =
+      `<div class="k2"><div class="l">CSPs at 60%+ completion</div><div class="v">${nf(jun.ge60)} <small>Jun</small> · ${nf(jul.ge60)} <small>Jul</small></div></div>`
+      + `<div class="k2"><div class="l">Overall install rate</div><div class="v">${jun.overall_rate}% <small>Jun</small> · ${jul.overall_rate}% <small>Jul</small></div></div>`
+      + `<div class="k2"><div class="l">CSPs measured (≥5 tasks)</div><div class="v">${nf(jun.csps)} <small>Jun</small> · ${nf(jul.csps)} <small>Jul</small></div></div>`;
+    set("tier-callout",
+      `<b>High-completion CSPs are rare — and flat month-over-month.</b> Only <b>${nf(jun.ge60)}</b> CSPs in June and `
+      + `<b>${nf(jul.ge60)}</b> in July installed 60%+ of their assigned tasks (~1–2% of active CSPs). Most install a small share — `
+      + `because in this pipeline the majority of tasks sit at earlier funnel stages, not because the CSP "failed". `
+      + `<i>New F1 OS app pipeline only; July is month-to-date with its newest tasks excluded so it matures fairly against June.</i>`, true);
+  }
 
   // engagement
   const e = D.engagement, reclick = e.c2+e.c3+e.c4plus;
