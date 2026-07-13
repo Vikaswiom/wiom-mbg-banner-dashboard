@@ -437,12 +437,13 @@
           `<tr class="${ov?'ov':''}"><td>${name}<small>${sub}</small></td>${cells(j,false)}${cells(l,true)}</tr>`).join("")
       + `</tbody>`;
     set("eff-callout",
-      `<b>After MBG launched (1 Jul), enrolled partners pulled ahead of the rest.</b> Enrolled partners' pooled efficiency rose `
-      + `<b>${ej.enrolled.agg_eff}% → ${el.enrolled.agg_eff}%</b> of resolved leads installed, while <span class="c2">Non-MBG</span> `
-      + `partners fell <b>${ej.nonmbg.agg_eff}% → ${el.nonmbg.agg_eff}%</b> — a gap that opened up exactly at launch. `
-      + `<b>${nf(el.enrolled.secured)} enrolled partners</b> (${el.enrolled.pct_secured}% of those with leads) have already cleared the 60% gate in July `
-      + `vs ${el.nonmbg.pct_secured}% of Non-MBG; eligible-but-not-enrolled climbed too (${ej.eligible.pct_secured}% → ${el.eligible.pct_secured}%). `
-      + `<i>Same calc as the CSP-facing MBG banner (Kamai Kavach): a lead counts once it reaches an end state, so open leads don't drag the rate. July is still filling in.</i>`, true);
+      `<b>Overall the network was flat — the MBG effect is inside the split.</b> <b>Overall</b> efficiency barely moved `
+      + `(<b>${ovj.agg_eff}% → ${ovl.agg_eff}%</b>; secured ${ovj.pct_secured}% → ${ovl.pct_secured}%), because the two halves move opposite ways: `
+      + `<b>enrolled</b> partners rose <b>${ej.enrolled.agg_eff}% → ${el.enrolled.agg_eff}%</b> of resolved leads installed while `
+      + `<span class="c2">Non-MBG</span> fell <b>${ej.nonmbg.agg_eff}% → ${el.nonmbg.agg_eff}%</b> — a gap that opened at launch `
+      + `(in June, before MBG, both sat at ~41%). ${nf(el.enrolled.secured)} enrolled partners (${el.enrolled.pct_secured}%) have cleared the 60% gate in July `
+      + `vs ${el.nonmbg.pct_secured}% of Non-MBG. `
+      + `<i>June had no MBG — its enrolled/eligible/Non-MBG columns are the SAME partners measured before the programme (a baseline to compare against), not a June MBG cohort. Same calc as the CSP-facing MBG banner (Kamai Kavach); a lead counts once it reaches an end state, so open leads don't drag the rate. July is still filling in.</i>`, true);
   }
 
   // engagement
