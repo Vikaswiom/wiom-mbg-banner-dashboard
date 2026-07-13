@@ -35,16 +35,22 @@ Stage flags: Slot = `CONFIRMED_SLOT_AT` · Technician = `EXECUTOR_ID` · Install
 - `query_csp_funnel.sql` — engagement + per-CSP funnel + click distribution
 - `query_connection_funnel.sql` — per-connection install output funnel
 
-## Auto-refresh (hourly)
+## Auto-refresh (hourly, in the cloud)
 
 `refresh.py` re-runs both queries against Metabase (Snowflake, database 113),
 rewrites `data.js` with fresh numbers and an IST `last_updated` stamp, then commits
 and pushes — so GitHub Pages serves the latest data within a minute. The dashboard
 header shows **"Auto-refreshes hourly"** and the last-updated time.
 
-It runs unattended via **Windows Task Scheduler** (task `WIOM-MBG-Dashboard-Refresh`,
-trigger: every 1 hour). Run manually any time with:
+It runs unattended via **GitHub Actions** (`.github/workflows/refresh.yml`, cron
+`0 * * * *` — every hour, UTC). This runs in the cloud, so it works 24/7 regardless
+of whether any laptop is on. The Metabase key is stored as the encrypted repo secret
+`METABASE_API_KEY` (never in code).
 
-```
-python refresh.py
-```
+- Trigger a run manually: **Actions tab → Hourly dashboard refresh → Run workflow**, or
+  `gh workflow run "Hourly dashboard refresh"`.
+- Run locally instead: set `METABASE_API_KEY` (or keep it in `C:\credentials\.env`) and
+  `python refresh.py`.
+
+> A Windows Task Scheduler task (`WIOM-MBG-Dashboard-Refresh`) also exists but is
+> **disabled** — GitHub Actions replaced it. Re-enable only if you want a local backup.
