@@ -239,6 +239,22 @@
     <div class="callout" id="tier-callout">—</div>
   </div>
 
+  <!-- PARTNER EFFICIENCY: enrolment × 60%+ -->
+  <div class="section-label">Partner efficiency by enrolment <span>· June vs July · share of partners installing 60%+ of the jobs handed to them</span></div>
+  <div class="card">
+    <div class="fn-head">
+      <div class="fn-title">Do enrolled partners finish more of their work?</div>
+      <div class="legendrow">
+        <span class="lg jun"><span class="dot"></span>June</span>
+        <span class="lg jul"><span class="dot"></span>July (to date)</span>
+      </div>
+    </div>
+    <div class="fn-note">Efficiency (per partner) = WiFi installs ÷ tasks handed to them (executor-assigned). Bar = % of that group's partners sitting at <b>60%+</b> efficiency. Partners with ≥3 assigned tasks; count · % at right.</div>
+    <div class="gfunnel" id="eff"></div>
+    <div class="kpis2" id="eff-tiles" style="margin-top:18px"></div>
+    <div class="callout" id="eff-callout">—</div>
+  </div>
+
   <!-- ENGAGEMENT -->
   <div class="section-label">Banner engagement <span>· segment A · how often clickers opened it</span></div>
   <div class="card">
@@ -259,6 +275,7 @@
       <li><b>Funnel stages</b> (per CSP, ≥1) from <code>DBT_CSP.TAS_INSTALL_EXECUTION_CANDIDATES</code> (<code>ETL_CURRENT=TRUE</code>): Slot = <code>CONFIRMED_SLOT_AT</code> · Technician = <code>EXECUTOR_ID</code> · Installed = <code>OTP_VERIFIED</code> / <code>COMPLETED_STEP≥7</code>, joined on <code>CSP_ID</code>.</li>
       <li><b>Scope:</b> installs are measured on the new F1 OS CSP app pipeline (<code>TAS_INSTALL_EXECUTION_CANDIDATES</code>) — the app the MBG banner lives in. All three segments are measured identically within the same July window, so the comparison is like-for-like.</li>
       <li><b>Maturity:</b> installs resolve fast — ~97% land within 3 days of task creation — so this ~4-day window is largely mature, but its newest tasks are still in flight, so install rates are a floor that will edge up.</li>
+      <li><b>Partner efficiency</b> = installs (<code>INSTALLATION_COMPLETED_AT</code>) ÷ tasks handed to the CSP (<code>EXECUTOR_ID IS NOT NULL</code>), per CSP, partners with ≥3 assigned tasks. <b>MBG enrolled</b> = audit done / ENROLLED in the belief-break onboarding audit (461 CSPs); <b>MBG eligible</b> = offered the programme but not yet enrolled (108); <b>Non-MBG</b> = everyone else. <code>partner_id</code>→<code>csp_id</code> via <code>CSP_GATEWAY_SERVICE.CSP_ACCOUNT</code> (active, latest). June = full month; July = 01 Jul → 2 days ago (install-matured).</li>
       <li><b>A vs B is the clean test</b> — both are full sub-populations of the same 425 cohort, so the difference isolates banner engagement. C is a labeled network benchmark. <b>Association, not proof of cause</b> — CSPs who click are likely more engaged to begin with. Auto-refreshes hourly.</li>
     </ul>
   </footer>
@@ -366,6 +383,36 @@
       + `<b>${nf(jul.ge60)}</b> in July installed 60%+ of their assigned tasks (~1–2% of active CSPs). Most install a small share — `
       + `because in this pipeline the majority of tasks sit at earlier funnel stages, not because the CSP "failed". `
       + `<i>New F1 OS app pipeline only; July is month-to-date with its newest tasks excluded so it matures fairly against June.</i>`, true);
+  }
+
+  // partner efficiency — enrolment × 60%+, June vs July
+  if (D.efficiency && D.efficiency.june && D.efficiency.july) {
+    const ej = D.efficiency.june, el = D.efficiency.july;
+    const sum = (o,k) => o.enrolled[k]+o.eligible[k]+o.nonmbg[k];
+    const ov = o => ({partners:sum(o,"partners"), ge60:sum(o,"ge60")});
+    const ovj = ov(ej), ovl = ov(el);
+    const pp = (x) => x.partners ? x.ge60/x.partners*100 : 0;
+    const effRow = (name, sub, jx, lx) => row(name, sub, [
+      ["jun", pp(jx), `<b>${nf(jx.ge60)}</b>/${nf(jx.partners)} <span class="pct">· ${pp(jx).toFixed(0)}%</span>`],
+      ["jul", pp(lx), `<b>${nf(lx.ge60)}</b>/${nf(lx.partners)} <span class="pct">· ${pp(lx).toFixed(0)}%</span>`],
+    ]);
+    document.getElementById("eff").innerHTML =
+      effRow("All partners", "any MBG status", ovj, ovl)
+      + effRow("MBG enrolled", "audit done", ej.enrolled, el.enrolled)
+      + effRow("MBG eligible", "offered, not enrolled", ej.eligible, el.eligible)
+      + effRow("Non-MBG", "outside the programme", ej.nonmbg, el.nonmbg);
+    document.getElementById("eff-tiles").innerHTML =
+      `<div class="k2"><div class="l">Partners at 60%+ (all)</div><div class="v">${pp(ovj).toFixed(0)}% <small>Jun</small> · ${pp(ovl).toFixed(0)}% <small>Jul</small></div></div>`
+      + `<div class="k2"><div class="l">Aggregate efficiency · enrolled</div><div class="v">${ej.enrolled.agg_eff}% <small>Jun</small> · ${el.enrolled.agg_eff}% <small>Jul</small></div></div>`
+      + `<div class="k2"><div class="l">Aggregate efficiency · Non-MBG</div><div class="v">${ej.nonmbg.agg_eff}% <small>Jun</small> · ${el.nonmbg.agg_eff}% <small>Jul</small></div></div>`;
+    const enrL = pp(el.enrolled), nonL = pp(el.nonmbg);
+    set("eff-callout",
+      `<b>Enrolled partners run the most efficient — and are pulling ahead.</b> In July <b>${enrL.toFixed(0)}%</b> of `
+      + `<b>MBG-enrolled</b> partners installed 60%+ of the jobs handed to them (up from ${pp(ej.enrolled).toFixed(0)}% in June), `
+      + `versus <b>${nonL.toFixed(0)}%</b> of <span class="c2">Non-MBG</span> partners (down from ${pp(ej.nonmbg).toFixed(0)}%). `
+      + `Their pooled efficiency — installs per assigned job — is <b>${el.enrolled.agg_eff}%</b> vs ${el.nonmbg.agg_eff}% for Non-MBG. `
+      + `Eligible-but-not-enrolled partners sit in between. `
+      + `<i>New F1 OS app pipeline only; July excludes its newest tasks so it matures fairly against June.</i>`, true);
   }
 
   // engagement
