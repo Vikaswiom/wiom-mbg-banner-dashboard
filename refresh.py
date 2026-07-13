@@ -55,7 +55,6 @@ def main():
     csp = by_group(run_sql(open(os.path.join(REPO, "query_csp_funnel.sql")).read()))
     seg = {r["SEGMENT"]: r for r in run_sql(
         open(os.path.join(REPO, "query_segment_funnel.sql")).read())}
-    june = run_sql(open(os.path.join(REPO, "query_june_baseline.sql")).read())[0]
 
     def g(d, k):
         return int(d.get(k) or 0)
@@ -92,16 +91,6 @@ def main():
             "clicked": seg_obj("A_clicked"),
             "noclick": seg_obj("B_noclick"),
             "nonmbg": seg_obj("C_nonmbg"),
-        },
-        "baseline": {
-            "label": "June · pre-banner",
-            "base": g(june, "ACTIVE_CSPS"), "active": g(june, "ACTIVE_CSPS"),
-            "slot": g(june, "SLOT_CSPS"), "tech": g(june, "TECH_CSPS"),
-            "install": g(june, "INSTALL_CSPS"),
-            "tasks": g(june, "TASKS"),
-            "t_slot_prop": g(june, "T_SLOT_PROP"), "t_slot_conf": g(june, "T_SLOT_CONF"),
-            "t_tech": g(june, "T_TECH"), "t_arrived": g(june, "T_ARRIVED"),
-            "t_install": g(june, "T_INSTALL"),
         },
     }
 
