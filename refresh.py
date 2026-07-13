@@ -104,13 +104,12 @@ def main():
         } for p, t in tiers.items()},
         "efficiency": {
             period: {cat: {
-                "partners": g(eff.get((period, cat), {}), "PARTNERS"),
-                "tasks": g(eff.get((period, cat), {}), "TASKS"),
+                "partners": g(eff.get((period, cat), {}), "PARTNERS"),   # with leads (denom>0)
+                "leads": g(eff.get((period, cat), {}), "LEADS"),         # resolved slot-confirmed leads
                 "installs": g(eff.get((period, cat), {}), "INSTALLS"),
                 "agg_eff": float((eff.get((period, cat)) or {}).get("AGG_EFF") or 0),
-                "partners_ge3": g(eff.get((period, cat), {}), "PARTNERS_GE3"),
-                "ge60": g(eff.get((period, cat), {}), "GE60"),
-                "pct60": float((eff.get((period, cat)) or {}).get("PCT60") or 0),
+                "secured": g(eff.get((period, cat), {}), "SECURED"),     # cleared the 60% gate
+                "pct_secured": float((eff.get((period, cat)) or {}).get("PCT_SECURED") or 0),
             } for cat in ("enrolled", "eligible", "nonmbg")}
             for period in ("june", "july")},
     }
