@@ -53,13 +53,23 @@ def by_group(rows):
 def main():
     log("start")
     csp = by_group(run_sql(open(os.path.join(REPO, "query_csp_funnel.sql")).read()))
-    conn = by_group(run_sql(open(os.path.join(REPO, "query_connection_funnel.sql")).read()))
+    seg = {r["SEGMENT"]: r for r in run_sql(
+        open(os.path.join(REPO, "query_segment_funnel.sql")).read())}
 
     def g(d, k):
         return int(d.get(k) or 0)
 
-    m, n = csp["MBG"], csp["Non-MBG"]
-    cm, cn = conn["MBG"], conn["Non-MBG"]
+    m = csp["MBG"]
+
+    def seg_obj(key):
+        s = seg[key]
+        return {
+            "base": g(s, "BASE_CSPS"), "active": g(s, "ACTIVE_CSPS"),
+            "slot": g(s, "SLOT_CSPS"), "tech": g(s, "TECH_CSPS"),
+            "install": g(s, "INSTALL_CSPS"),
+            "connections": g(s, "CONNECTIONS"), "installs_conn": g(s, "INSTALLS_CONN"),
+        }
+
     now = datetime.now(IST)
 
     data = {
@@ -72,19 +82,10 @@ def main():
             "ct_profiles": g(m, "CT_PROFILES"),
             "c1": g(m, "C1"), "c2": g(m, "C2"), "c3": g(m, "C3"), "c4plus": g(m, "C4PLUS"),
         },
-        "csp_funnel": {
-            "mbg": {"clicked": g(m, "CLICKERS"), "slot": g(m, "REACHED_SLOT"),
-                    "tech": g(m, "REACHED_TECH"), "install": g(m, "REACHED_INSTALL")},
-            "non": {"clicked": g(n, "CLICKERS"), "slot": g(n, "REACHED_SLOT"),
-                    "tech": g(n, "REACHED_TECH"), "install": g(n, "REACHED_INSTALL")},
-        },
-        "conn_funnel": {
-            "mbg": {"connections": g(cm, "CONNECTIONS"), "slot_proposed": g(cm, "SLOT_PROPOSED"),
-                    "slot_confirmed": g(cm, "SLOT_CONFIRMED"), "tech": g(cm, "TECH_ASSIGNED"),
-                    "arrived": g(cm, "ARRIVED"), "installed": g(cm, "INSTALLED")},
-            "non": {"connections": g(cn, "CONNECTIONS"), "slot_proposed": g(cn, "SLOT_PROPOSED"),
-                    "slot_confirmed": g(cn, "SLOT_CONFIRMED"), "tech": g(cn, "TECH_ASSIGNED"),
-                    "arrived": g(cn, "ARRIVED"), "installed": g(cn, "INSTALLED")},
+        "segments": {
+            "clicked": seg_obj("A_clicked"),
+            "noclick": seg_obj("B_noclick"),
+            "nonmbg": seg_obj("C_nonmbg"),
         },
     }
 
