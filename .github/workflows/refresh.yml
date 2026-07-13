@@ -1,0 +1,33 @@
+name: Hourly dashboard refresh
+
+on:
+  schedule:
+    - cron: "0 * * * *"    # every hour, on the hour (UTC) — runs in the cloud, PC-independent
+  workflow_dispatch: {}     # allow manual runs from the Actions tab
+
+permissions:
+  contents: write           # let refresh.py push data.js back to main
+
+concurrency:
+  group: dashboard-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Refresh data.js and push
+        env:
+          METABASE_API_KEY: ${{ secrets.METABASE_API_KEY }}
+        run: python refresh.py

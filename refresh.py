@@ -1,13 +1,30 @@
 #!/usr/bin/env python
 """Refresh the MBG banner dashboard: re-run Metabase queries, regenerate data.js,
-commit and push to GitHub Pages. Designed to run hourly via Windows Task Scheduler."""
+commit and push to GitHub Pages. Runs hourly via GitHub Actions (cloud cron);
+can also be run locally / via Windows Task Scheduler."""
 import json, os, subprocess, urllib.request
 from datetime import datetime, timezone, timedelta
 
 REPO = os.path.dirname(os.path.abspath(__file__))
-API_KEY = "mb_vgO9yv/ldumT74/svNNsIGyTU39WiNA32FMnEP8NSJQ="
 URL = "https://metabase.wiom.in/api/dataset"
 IST = timezone(timedelta(hours=5, minutes=30))
+
+
+def get_api_key():
+    """Read the Metabase key from env (GitHub secret) or a local .env fallback.
+    Never hard-coded — this repo is public."""
+    k = os.environ.get("METABASE_API_KEY")
+    if k:
+        return k.strip()
+    for envf in (r"C:\credentials\.env", os.path.join(REPO, ".env")):
+        if os.path.exists(envf):
+            for line in open(envf, encoding="utf-8"):
+                if line.strip().startswith("METABASE_API_KEY"):
+                    return line.split("=", 1)[1].strip().strip('"').strip("'")
+    raise RuntimeError("METABASE_API_KEY not set (env var or C:\\credentials\\.env)")
+
+
+API_KEY = get_api_key()
 
 
 def log(msg):
@@ -85,7 +102,7 @@ def main():
         return
     git("-c", "user.name=Vikaswiom", "-c", "user.email=design.3@wiom.in",
         "commit", "-m", "chore: hourly data refresh " + data["last_updated"])
-    git("push", "origin", "main")
+    git("push", "origin", "HEAD:main")
     log("pushed: " + data["last_updated"])
 
 
