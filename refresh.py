@@ -69,6 +69,7 @@ def main():
         "live": 425,
         "engagement": {
             "clicked": g(m, "CLICKERS"), "clicks": g(m, "TOTAL_CLICKS"),
+            "ct_profiles": g(m, "CT_PROFILES"),
             "c1": g(m, "C1"), "c2": g(m, "C2"), "c3": g(m, "C3"), "c4plus": g(m, "C4PLUS"),
         },
         "csp_funnel": {

@@ -25,15 +25,33 @@ base AS (
     COALESCE(i.exec_assigned,0) AS exec_assigned,
     COALESCE(i.installed,0) AS installed
   FROM clicks c LEFT JOIN inst i ON i.cspid = c.cspid
+),
+-- CleverTap-profile count (CLEVERTAP_ID) per group, to reconcile with CleverTap's UI.
+-- CleverTap counts profiles; the dashboard headline counts unique CSPs. One CSP owns
+-- many CleverTap profiles (reinstalls / re-logins), so ct_profiles > clickers.
+ctprof AS (
+  SELECT b.grp, COUNT(DISTINCT e.CLEVERTAP_ID) AS ct_profiles
+  FROM PROD_DB.CLEVERTAP_CSP_API.EVENTS_DATA e
+  JOIN prof p ON p.CLEVERTAP_ID = e.CLEVERTAP_ID
+  JOIN base b ON b.cspid = p.cspid
+  WHERE e.event_name='banner_opened' AND e.TIMESTAMP >= '2026-07-09'
+  GROUP BY b.grp
 )
-SELECT grp,
-  COUNT(*) AS clickers,
-  SUM(n_clicks) AS total_clicks,
-  COUNT(CASE WHEN slot_conf>0 THEN 1 END)     AS reached_slot,
-  COUNT(CASE WHEN exec_assigned>0 THEN 1 END) AS reached_tech,
-  COUNT(CASE WHEN installed>0 THEN 1 END)     AS reached_install,
-  COUNT(CASE WHEN n_clicks=1 THEN 1 END) AS c1,
-  COUNT(CASE WHEN n_clicks=2 THEN 1 END) AS c2,
-  COUNT(CASE WHEN n_clicks=3 THEN 1 END) AS c3,
-  COUNT(CASE WHEN n_clicks>=4 THEN 1 END) AS c4plus
-FROM base GROUP BY grp ORDER BY grp
+SELECT agg.grp,
+  agg.clickers, agg.total_clicks, agg.reached_slot, agg.reached_tech, agg.reached_install,
+  agg.c1, agg.c2, agg.c3, agg.c4plus, cp.ct_profiles
+FROM (
+  SELECT grp,
+    COUNT(*) AS clickers,
+    SUM(n_clicks) AS total_clicks,
+    COUNT(CASE WHEN slot_conf>0 THEN 1 END)     AS reached_slot,
+    COUNT(CASE WHEN exec_assigned>0 THEN 1 END) AS reached_tech,
+    COUNT(CASE WHEN installed>0 THEN 1 END)     AS reached_install,
+    COUNT(CASE WHEN n_clicks=1 THEN 1 END) AS c1,
+    COUNT(CASE WHEN n_clicks=2 THEN 1 END) AS c2,
+    COUNT(CASE WHEN n_clicks=3 THEN 1 END) AS c3,
+    COUNT(CASE WHEN n_clicks>=4 THEN 1 END) AS c4plus
+  FROM base GROUP BY grp
+) agg
+JOIN ctprof cp ON cp.grp = agg.grp
+ORDER BY agg.grp
