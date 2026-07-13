@@ -7,6 +7,7 @@
     --segA:#2a78d6; --segA-soft:#dcebfb;   /* MBG clicked  */
     --segB:#e8843a; --segB-soft:#fbe6d4;   /* MBG no-click */
     --segC:#7b8794; --segC-soft:#e7eaed;   /* Non-MBG      */
+    --segD:#3f4650; --segD-soft:#e0e3e7;   /* June baseline*/
     --good:#0a8f3c;
     --shadow:0 1px 2px rgba(16,20,19,.04), 0 8px 24px rgba(16,20,19,.05);
     --r:14px;
@@ -17,7 +18,7 @@
       --ink:#f4f6f4; --ink-2:#b9bfbb; --muted:#838885;
       --hair:#2a2d2b; --hair-2:#232624; --track:#26292a;
       --segA:#4a91e8; --segA-soft:#1c3352; --segB:#f0904f; --segB-soft:#43291a;
-      --segC:#9aa4b0; --segC-soft:#2b3138; --good:#3bc167;
+      --segC:#9aa4b0; --segC-soft:#2b3138; --segD:#c2c8d0; --segD-soft:#2e333a; --good:#3bc167;
       --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
     }
   }
@@ -26,7 +27,7 @@
     --ink:#f4f6f4; --ink-2:#b9bfbb; --muted:#838885;
     --hair:#2a2d2b; --hair-2:#232624; --track:#26292a;
     --segA:#4a91e8; --segA-soft:#1c3352; --segB:#f0904f; --segB-soft:#43291a;
-    --segC:#9aa4b0; --segC-soft:#2b3138; --good:#3bc167;
+    --segC:#9aa4b0; --segC-soft:#2b3138; --segD:#c2c8d0; --segD-soft:#2e333a; --good:#3bc167;
     --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
   }
   :root[data-theme="light"] {
@@ -34,7 +35,7 @@
     --ink:#101413; --ink-2:#4d5250; --muted:#838885;
     --hair:#e4e6e1; --hair-2:#eef0ec; --track:#edeff0;
     --segA:#2a78d6; --segA-soft:#dcebfb; --segB:#e8843a; --segB-soft:#fbe6d4;
-    --segC:#7b8794; --segC-soft:#e7eaed; --good:#0a8f3c;
+    --segC:#7b8794; --segC-soft:#e7eaed; --segD:#3f4650; --segD-soft:#e0e3e7; --good:#0a8f3c;
     --shadow:0 1px 2px rgba(16,20,19,.04), 0 8px 24px rgba(16,20,19,.05);
   }
 
@@ -64,17 +65,18 @@
   .hero .big small { display:block; font-size:14px; font-weight:600; letter-spacing:0; color:var(--muted); margin-top:8px; }
   .hero .say { font-size:clamp(16px,2.1vw,20px); font-weight:560; color:var(--ink); text-wrap:balance; line-height:1.4; }
   .hero .say b { color:var(--segA); font-weight:730; }
-  .hero .say .b2 { color:var(--segB); } .hero .say .c2 { color:var(--segC); }
+  .a2 { color:var(--segA); font-weight:650; } .b2 { color:var(--segB); font-weight:650; }
+  .c2 { color:var(--segC); font-weight:650; } .d2 { color:var(--segD); font-weight:650; }
 
   .section-label { font-size:12px; font-weight:650; letter-spacing:.07em; text-transform:uppercase; color:var(--muted);
     margin:38px 0 14px; display:flex; align-items:baseline; gap:10px; }
   .section-label span { font-weight:500; letter-spacing:0; text-transform:none; font-size:12px; }
 
   /* segment legend */
-  .seglegend { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:18px; }
+  .seglegend { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px; }
   .sl { background:var(--surface); border:1px solid var(--hair); border-radius:12px; padding:14px 16px; box-shadow:var(--shadow);
     border-top:3px solid var(--c); }
-  .sl.a{--c:var(--segA);} .sl.b{--c:var(--segB);} .sl.c{--c:var(--segC);}
+  .sl.a{--c:var(--segA);} .sl.b{--c:var(--segB);} .sl.c{--c:var(--segC);} .sl.d{--c:var(--segD);}
   .sl .slk { font-size:12.5px; font-weight:650; color:var(--ink); display:flex; align-items:center; gap:7px; }
   .sl .dot { width:11px; height:11px; border-radius:3px; background:var(--c); flex:none; }
   .sl .sln { font-size:26px; font-weight:740; letter-spacing:-.02em; font-variant-numeric:tabular-nums; margin-top:6px; }
@@ -97,25 +99,26 @@
   .gbar { display:flex; align-items:center; gap:10px; }
   .gtrack { flex:1; height:24px; background:var(--track); border-radius:6px; overflow:hidden; }
   .gfill { height:100%; border-radius:6px; min-width:2px; transition:width .5s cubic-bezier(.2,.7,.3,1); }
-  .gfill.a{background:var(--segA);} .gfill.b{background:var(--segB);} .gfill.c{background:var(--segC);}
+  .gfill.a{background:var(--segA);} .gfill.b{background:var(--segB);} .gfill.c{background:var(--segC);} .gfill.d{background:var(--segD);}
   .gval { font-size:12.5px; font-variant-numeric:tabular-nums; min-width:132px; color:var(--ink-2); }
   .gval b { color:var(--ink); font-weight:660; } .gval .pct { color:var(--muted); }
   .legendrow { display:flex; gap:18px; margin-top:4px; }
   .lg { display:inline-flex; align-items:center; gap:7px; font-size:12.5px; color:var(--ink-2); font-weight:550; }
   .lg .dot { width:11px; height:11px; border-radius:3px; }
-  .lg.a .dot{background:var(--segA);} .lg.b .dot{background:var(--segB);} .lg.c .dot{background:var(--segC);}
+  .lg.a .dot{background:var(--segA);} .lg.b .dot{background:var(--segB);} .lg.c .dot{background:var(--segC);} .lg.d .dot{background:var(--segD);}
 
   /* install spotlight */
-  .spot { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:16px; }
+  .spot { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:16px; }
   .sp { border-radius:12px; padding:16px 18px; border:1px solid var(--hair); background:var(--bg); }
   .sp.a{--bg:var(--segA-soft); border-color:color-mix(in srgb,var(--segA) 30%,var(--hair));}
   .sp.b{--bg:var(--segB-soft); border-color:color-mix(in srgb,var(--segB) 26%,var(--hair));}
   .sp.c{--bg:var(--segC-soft); border-color:color-mix(in srgb,var(--segC) 26%,var(--hair));}
+  .sp.d{--bg:var(--segD-soft); border-color:color-mix(in srgb,var(--segD) 30%,var(--hair));}
   .sp .spl { font-size:12px; font-weight:600; color:var(--ink-2); display:flex; align-items:center; gap:7px; }
   .sp .spl .dot { width:10px; height:10px; border-radius:3px; }
-  .sp.a .dot{background:var(--segA);} .sp.b .dot{background:var(--segB);} .sp.c .dot{background:var(--segC);}
+  .sp.a .dot{background:var(--segA);} .sp.b .dot{background:var(--segB);} .sp.c .dot{background:var(--segC);} .sp.d .dot{background:var(--segD);}
   .sp .spv { font-size:38px; font-weight:760; letter-spacing:-.03em; font-variant-numeric:tabular-nums; margin-top:8px; line-height:1; }
-  .sp.a .spv{color:var(--segA);} .sp.b .spv{color:var(--segB);} .sp.c .spv{color:var(--segC);}
+  .sp.a .spv{color:var(--segA);} .sp.b .spv{color:var(--segB);} .sp.c .spv{color:var(--segC);} .sp.d .spv{color:var(--ink);}
   .sp .spd { font-size:12px; color:var(--muted); margin-top:7px; font-variant-numeric:tabular-nums; }
 
   .callout { margin-top:18px; padding:13px 15px; background:var(--surface-2); border:1px solid var(--hair-2);
@@ -143,12 +146,14 @@
   footer b { color:var(--ink-2); font-weight:600; }
   footer ul { margin:10px 0 0; padding-left:18px; } footer li { margin:3px 0; }
 
+  @media (max-width:920px){ .seglegend, .spot { grid-template-columns:repeat(2,1fr); } }
   @media (max-width:820px){
     .hero { grid-template-columns:1fr; gap:14px; text-align:left; }
-    .seglegend, .spot, .kpis2 { grid-template-columns:1fr; }
+    .kpis2 { grid-template-columns:1fr; }
     .gstage { grid-template-columns:1fr; gap:7px; }
     .dist-row { grid-template-columns:64px 1fr 96px; }
   }
+  @media (max-width:520px){ .seglegend, .spot { grid-template-columns:1fr; } }
 </style>
 
 <div class="wrap">
@@ -176,6 +181,7 @@
     <div class="sl a"><div class="slk"><span class="dot"></span>A · MBG · Clicked banner</div><div class="sln" id="sl-a">—</div><div class="sld">eligible CSPs who opened the banner ≥1×</div><div class="slx" id="slx-a">—</div></div>
     <div class="sl b"><div class="slk"><span class="dot"></span>B · MBG · Never clicked</div><div class="sln" id="sl-b">—</div><div class="sld">eligible CSPs who never opened it</div><div class="slx" id="slx-b">—</div></div>
     <div class="sl c"><div class="slk"><span class="dot"></span>C · Non-MBG</div><div class="sln" id="sl-c">—</div><div class="sld">active CSPs outside the program</div><div class="slx" id="slx-c">—</div></div>
+    <div class="sl d"><div class="slk"><span class="dot"></span>June · pre-banner</div><div class="sln" id="sl-d">—</div><div class="sld">whole network, before MBG existed</div><div class="slx" id="slx-d">—</div></div>
   </div>
 
   <!-- WHO IS WORKING (per CSP) -->
@@ -189,16 +195,18 @@
       <span class="lg a"><span class="dot"></span>A · Clicked</span>
       <span class="lg b"><span class="dot"></span>B · Never clicked</span>
       <span class="lg c"><span class="dot"></span>C · Non-MBG</span>
+      <span class="lg d"><span class="dot"></span>June baseline</span>
     </div>
     <div class="gfunnel" id="funnel"></div>
   </div>
 
   <!-- INSTALL SPOTLIGHT -->
-  <div class="section-label">The bottom line <span>· % of each segment that completed a WiFi install</span></div>
+  <div class="section-label">The bottom line <span>· % of each group's tasks that reached WiFi install — vs June, before the banner</span></div>
   <div class="spot">
     <div class="sp a"><div class="spl"><span class="dot"></span>A · Clicked banner</div><div class="spv" id="sp-a">—</div><div class="spd" id="spd-a">—</div></div>
     <div class="sp b"><div class="spl"><span class="dot"></span>B · Never clicked</div><div class="spv" id="sp-b">—</div><div class="spd" id="spd-b">—</div></div>
     <div class="sp c"><div class="spl"><span class="dot"></span>C · Non-MBG</div><div class="spv" id="sp-c">—</div><div class="spd" id="spd-c">—</div></div>
+    <div class="sp d"><div class="spl"><span class="dot"></span>June · pre-banner</div><div class="spv" id="sp-d">—</div><div class="spd" id="spd-d">—</div></div>
   </div>
   <div class="callout" id="bl-callout">—</div>
 
@@ -213,6 +221,7 @@
       <span class="lg a"><span class="dot"></span>A · Clicked</span>
       <span class="lg b"><span class="dot"></span>B · Never clicked</span>
       <span class="lg c"><span class="dot"></span>C · Non-MBG</span>
+      <span class="lg d"><span class="dot"></span>June baseline</span>
     </div>
     <div class="gfunnel" id="taskfunnel"></div>
     <div class="callout" id="task-callout">—</div>
@@ -236,8 +245,9 @@
     <ul>
       <li><b>Segments:</b> A &amp; B split the 425 MBG-eligible <code>cspid</code>s by whether they fired a <code>banner_opened</code> event (<code>CLEVERTAP_CSP_API.EVENTS_DATA</code>, mapped via <code>PROFILE_DATA</code>) since the window start. C = Non-MBG CSPs that were <b>active</b> in the install pipeline (base = active only, since the full Non-MBG population is unbounded).</li>
       <li><b>Funnel stages</b> (per CSP, ≥1) from <code>DBT_CSP.TAS_INSTALL_EXECUTION_CANDIDATES</code> (<code>ETL_CURRENT=TRUE</code>): Slot = <code>CONFIRMED_SLOT_AT</code> · Technician = <code>EXECUTOR_ID</code> · Installed = <code>OTP_VERIFIED</code> / <code>COMPLETED_STEP≥7</code>, joined on <code>CSP_ID</code>.</li>
-      <li><b>A vs B is the clean test</b> — both are full sub-populations of the same 425 cohort, so the difference isolates banner engagement. C is a labeled network benchmark.</li>
-      <li><b>Association, not proof of cause:</b> CSPs who click are likely more engaged to begin with. <b>Immature window</b> — installs still landing; data auto-refreshes hourly (Metabase → Snowflake, ~hours behind live CleverTap).</li>
+      <li><b>June baseline</b> = the whole active CSP network for all of June 2026 (before MBG or the banner existed) — a fully-matured "before" reference. Same funnel definitions, from <code>query_june_baseline.sql</code>.</li>
+      <li><b>Maturity:</b> 97% of June's installs completed within 3 days of task creation, so the July window is largely mature and broadly comparable — but its newest tasks are still in flight, so July's install stage is a floor that will edge up.</li>
+      <li><b>A vs B is the clean test</b> — both are full sub-populations of the same 425 cohort, so the difference isolates banner engagement. C is a labeled network benchmark. <b>Association, not proof of cause</b> — CSPs who click are likely more engaged to begin with. Auto-refreshes hourly.</li>
     </ul>
   </footer>
 </div>
@@ -251,50 +261,51 @@
   const set = (id,v,html) => { const el=document.getElementById(id); if(el){ html?el.innerHTML=v:el.textContent=v; } };
 
   const S = D.segments;
-  const A = S.clicked, B = S.noclick, C = S.nonmbg;
-  const rA = A.install/A.base, rB = B.install/B.base, rC = C.install/C.base;
-  const xAB = rB ? (rA/rB) : null, xAC = rC ? (rA/rC) : null;
+  const A = S.clicked, B = S.noclick, C = S.nonmbg, J = D.baseline;
+  // task-level install rate = the consistent, June-comparable metric (base = tasks)
+  const tr = s => s.tasks ? s.t_install/s.tasks*100 : 0;
+  const trA = tr(A), trB = tr(B), trC = tr(C), trJ = tr(J);
+  const xAB = trB ? trA/trB : null, xAC = trC ? trA/trC : null;
 
   set("m-updated", D.last_updated);
   set("m-window", D.window_start + " → " + D.window_end);
   set("m-live", nf(D.live));
 
-  // hero
-  set("hero-x", (xAB ? xAB.toFixed(1) : "—") + "×");
+  // hero — task-level, referenced to June
   document.querySelector("#hero-x").innerHTML =
-    (xAB ? xAB.toFixed(1) : "—") + "×<small>higher install rate<br>vs MBG who never clicked</small>";
+    (xAB ? xAB.toFixed(1) : "—") + "×<small>more of their tasks installed<br>vs MBG who never clicked</small>";
   set("hero-say",
-    `MBG CSPs who <b>clicked the banner</b> complete WiFi installs at <b>${pct0(A.install,A.base)}</b> — `
-    + `about <b>${xAB?xAB.toFixed(1):"—"}×</b> the <span class="b2">${pct0(B.install,B.base)}</span> of eligible CSPs who `
-    + `<span class="b2">never clicked</span>, and <b>${xAC?xAC.toFixed(1):"—"}×</b> the <span class="c2">${pct0(C.install,C.base)}</span> `
-    + `<span class="c2">Non-MBG</span> baseline.`, true);
+    `MBG CSPs who <b>clicked the banner</b> complete WiFi installs on <b>${trA.toFixed(1)}% of their tasks</b> — `
+    + `about <b>${xAB?xAB.toFixed(1):"—"}×</b> the <span class="b2">${trB.toFixed(1)}%</span> of eligible CSPs who `
+    + `<span class="b2">never clicked</span> and <b>${xAC?xAC.toFixed(1):"—"}×</b> the <span class="c2">${trC.toFixed(1)}%</span> `
+    + `<span class="c2">Non-MBG</span> rate — already matching <span class="d2">June's ${trJ.toFixed(1)}%</span> pre-banner network baseline.`, true);
 
-  // segment counts
-  set("sl-a", nf(A.base)); set("sl-b", nf(B.base)); set("sl-c", nf(C.base) + " ");
-  document.getElementById("sl-c").innerHTML = nf(C.base) + ' <span style="font-size:13px;color:var(--muted);font-weight:500">active</span>';
+  // segment tiles: base + workload
+  const perCsp = s => s.active ? (s.tasks/s.active).toFixed(1) : "0";
+  set("sl-a", nf(A.base)); set("sl-b", nf(B.base));
+  document.getElementById("sl-c").innerHTML = nf(C.base) + ' <span class="u">active</span>';
+  document.getElementById("sl-d").innerHTML = nf(J.base) + ' <span class="u">active</span>';
+  set("slx-a", `${nf(A.tasks)} tasks <span class="m">· ${perCsp(A)}/active CSP</span>`, true);
+  set("slx-b", `${nf(B.tasks)} tasks <span class="m">· ${perCsp(B)}/active CSP</span>`, true);
+  set("slx-c", `${nf(C.tasks)} tasks <span class="m">· ${perCsp(C)}/active CSP</span>`, true);
+  set("slx-d", `${nf(J.tasks)} tasks <span class="m">· ${perCsp(J)}/active CSP</span>`, true);
 
-  // funnel — bar width = % of that segment's base
-  const segs = [["a",A],["b",B],["c",C]];
-  const stages = [
-    { name:"CSPs in segment", sub:"base population", key:"base" },
+  // PEOPLE funnel — base = active CSPs (consistent across all incl June)
+  const segs = [["a",A],["b",B],["c",C],["d",J]];
+  const pstages = [
+    { name:"Active CSPs",  sub:"took ≥1 task",   key:"active" },
     { name:"Slot confirmed",  sub:"booked a slot",   key:"slot" },
     { name:"Technician assigned", sub:"executor set", key:"tech" },
-    { name:"WiFi installed",  sub:"OTP verified",     key:"install" },
+    { name:"WiFi installed",  sub:"≥1 OTP verified",  key:"install" },
   ];
-  document.getElementById("funnel").innerHTML = stages.map(st =>
+  document.getElementById("funnel").innerHTML = pstages.map(st =>
     row(st.name, st.sub, segs.map(([cls,s]) => {
-      const p = s.base ? s[st.key]/s.base*100 : 0;
+      const p = s.active ? s[st.key]/s.active*100 : 0;
       return [cls, p, `<b>${nf(s[st.key])}</b> <span class="pct">· ${p.toFixed(0)}%</span>`];
     }))
   ).join("");
 
-  // segment tile workload: tasks + tasks per active CSP
-  const perCsp = s => s.active ? (s.tasks/s.active).toFixed(1) : "0";
-  set("slx-a", `${nf(A.tasks)} tasks <span class="m">· ${perCsp(A)}/active CSP</span>`, true);
-  set("slx-b", `${nf(B.tasks)} tasks <span class="m">· ${perCsp(B)}/active CSP</span>`, true);
-  set("slx-c", `${nf(C.tasks)} tasks <span class="m">· ${perCsp(C)}/active CSP</span>`, true);
-
-  // TASK funnel — bar width = % of that segment's tasks
+  // TASK funnel — base = tasks (consistent across all incl June)
   const tstages = [
     { name:"Tasks held",          sub:"connections assigned", key:"tasks" },
     { name:"Slot proposed",       sub:"slot offered",         key:"t_slot_prop" },
@@ -309,22 +320,23 @@
       return [cls, p, `<b>${nf(s[st.key])}</b> <span class="pct">· ${p.toFixed(0)}%</span>`];
     }))
   ).join("");
-  const trA = A.tasks?A.t_install/A.tasks*100:0, trB = B.tasks?B.t_install/B.tasks*100:0, trC = C.tasks?C.t_install/C.tasks*100:0;
   const txAB = trB ? (trA/trB).toFixed(1) : "—";
   set("task-callout",
-    `<b>Similar workload, very different throughput.</b> Every segment carries roughly the same load — about `
-    + `<b>${perCsp(A)}–${perCsp(B)} tasks per active CSP</b> — yet clickers complete <b>${trA.toFixed(1)}%</b> of their tasks `
-    + `versus ${trB.toFixed(1)}% (never-clicked) and ${trC.toFixed(1)}% (Non-MBG). Same work in hand; the clickers finish `
-    + `<b>${txAB}× more of it</b>.`, true);
+    `<b>Similar workload, very different throughput.</b> Every group carries roughly the same load — about `
+    + `<b>${perCsp(C)}–${perCsp(A)} tasks per active CSP</b> — yet clickers complete <b>${trA.toFixed(1)}%</b> of their tasks `
+    + `versus ${trB.toFixed(1)}% (never-clicked) and ${trC.toFixed(1)}% (Non-MBG), matching June's ${trJ.toFixed(1)}% baseline. `
+    + `Same work in hand; clickers finish <b>${txAB}× more of it</b>.`, true);
 
-  // spotlight (per-CSP headline + per-task sub)
-  set("sp-a", pct0(A.install,A.base)); set("spd-a", `${nf(A.install)}/${nf(A.base)} CSPs · ${trA.toFixed(1)}% of tasks`);
-  set("sp-b", pct0(B.install,B.base)); set("spd-b", `${nf(B.install)}/${nf(B.base)} CSPs · ${trB.toFixed(1)}% of tasks`);
-  set("sp-c", pct0(C.install,C.base)); set("spd-c", `${nf(C.install)}/${nf(C.base)} active · ${trC.toFixed(1)}% of tasks`);
+  // spotlight — task-level install rate, 4-way incl June
+  set("sp-a", trA.toFixed(1)+"%"); set("spd-a", `${nf(A.t_install)} of ${nf(A.tasks)} tasks`);
+  set("sp-b", trB.toFixed(1)+"%"); set("spd-b", `${nf(B.t_install)} of ${nf(B.tasks)} tasks`);
+  set("sp-c", trC.toFixed(1)+"%"); set("spd-c", `${nf(C.t_install)} of ${nf(C.tasks)} tasks`);
+  set("sp-d", trJ.toFixed(1)+"%"); set("spd-d", `${nf(J.t_install)} of ${nf(J.tasks)} · full month`);
   set("bl-callout",
-    `<b>The banner engagement is what separates the winners.</b> MBG CSPs who never clicked (${pct0(B.install,B.base)}) `
-    + `perform almost the same as the Non-MBG network (${pct0(C.install,C.base)}) — being in the MBG list alone doesn't lift installs. `
-    + `The CSPs who actually <b>opened the banner install ${xAB?xAB.toFixed(1):"—"}× more</b>.`, true);
+    `<b>The banner engagement is what separates the winners.</b> Before the banner, the whole June network installed `
+    + `<span class="d2">${trJ.toFixed(1)}%</span> of tasks. Today the <b>clicked</b> segment already matches it (${trA.toFixed(1)}%), while `
+    + `MBG CSPs who <span class="b2">never clicked</span> (${trB.toFixed(1)}%) and <span class="c2">Non-MBG</span> (${trC.toFixed(1)}%) sit far below — `
+    + `MBG eligibility alone doesn't lift installs, clicking does. <i>July is still maturing (~97% of installs land within 3 days), so B &amp; C will edge up.</i>`, true);
 
   // engagement
   const e = D.engagement, reclick = e.c2+e.c3+e.c4plus;
