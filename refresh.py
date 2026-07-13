@@ -105,11 +105,12 @@ def main():
         "efficiency": {
             period: {cat: {
                 "partners": g(eff.get((period, cat), {}), "PARTNERS"),
-                "ge60": g(eff.get((period, cat), {}), "GE60"),
-                "pct": float((eff.get((period, cat)) or {}).get("PCT_GE60") or 0),
                 "tasks": g(eff.get((period, cat), {}), "TASKS"),
                 "installs": g(eff.get((period, cat), {}), "INSTALLS"),
                 "agg_eff": float((eff.get((period, cat)) or {}).get("AGG_EFF") or 0),
+                "partners_ge3": g(eff.get((period, cat), {}), "PARTNERS_GE3"),
+                "ge60": g(eff.get((period, cat), {}), "GE60"),
+                "pct60": float((eff.get((period, cat)) or {}).get("PCT60") or 0),
             } for cat in ("enrolled", "eligible", "nonmbg")}
             for period in ("june", "july")},
     }

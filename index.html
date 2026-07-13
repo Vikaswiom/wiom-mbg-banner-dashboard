@@ -127,6 +127,23 @@
     border-left:3px solid var(--segA); border-radius:8px; font-size:13.5px; color:var(--ink-2); }
   .callout b { color:var(--ink); }
 
+  /* efficiency comparison table */
+  .efftbl-wrap { overflow-x:auto; margin-top:22px; }
+  .efftbl { width:100%; min-width:640px; border-collapse:collapse; font-size:13px; font-variant-numeric:tabular-nums; }
+  .efftbl th, .efftbl td { padding:9px 12px; text-align:right; white-space:nowrap; }
+  .efftbl th:first-child, .efftbl td:first-child { text-align:left; }
+  .efftbl thead th { color:var(--muted); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.04em; }
+  .efftbl thead tr.grp th { text-align:center; padding-bottom:2px; font-size:11.5px; font-weight:700; }
+  .efftbl thead tr.grp th.jun-c { color:var(--segC); } .efftbl thead tr.grp th.jul-c { color:var(--segA); }
+  .efftbl thead tr.cols th { border-bottom:1px solid var(--hair); }
+  .efftbl td.jsep, .efftbl th.jsep { border-left:1px solid var(--hair); }
+  .efftbl tbody td { border-bottom:1px solid var(--hair-2); color:var(--ink-2); }
+  .efftbl tbody td:first-child { font-weight:600; color:var(--ink); }
+  .efftbl tbody td:first-child small { display:block; color:var(--muted); font-weight:500; font-size:11px; margin-top:1px; }
+  .efftbl tbody b { color:var(--ink); font-weight:660; }
+  .efftbl tbody tr.ov td { border-top:2px solid var(--hair); border-bottom:none; background:var(--surface-2); }
+  .efftbl .mut { color:var(--muted); }
+
   /* engagement distribution */
   .dist { display:flex; flex-direction:column; gap:12px; margin-top:4px; }
   .dist-row { display:grid; grid-template-columns:88px 1fr 116px; align-items:center; gap:14px; }
@@ -239,19 +256,19 @@
     <div class="callout" id="tier-callout">—</div>
   </div>
 
-  <!-- PARTNER EFFICIENCY: enrolment × 60%+ -->
-  <div class="section-label">Partner efficiency by enrolment <span>· June vs July · share of partners installing 60%+ of the jobs handed to them</span></div>
+  <!-- PARTNER EFFICIENCY by MBG enrolment -->
+  <div class="section-label">Partner efficiency by MBG enrolment <span>· June (before MBG) vs July (MBG live from 1 Jul) · installs ÷ bookings assigned to the partner</span></div>
   <div class="card">
     <div class="fn-head">
-      <div class="fn-title">Do enrolled partners finish more of their work?</div>
+      <div class="fn-title">Did enrolled partners get more efficient after MBG launched?</div>
       <div class="legendrow">
-        <span class="lg jun"><span class="dot"></span>June</span>
-        <span class="lg jul"><span class="dot"></span>July (to date)</span>
+        <span class="lg jun"><span class="dot"></span>June · before</span>
+        <span class="lg jul"><span class="dot"></span>July · MBG live</span>
       </div>
     </div>
-    <div class="fn-note">Efficiency (per partner) = WiFi installs ÷ tasks handed to them (executor-assigned). Bar = % of that group's partners sitting at <b>60%+</b> efficiency. Partners with ≥3 assigned tasks; count · % at right.</div>
+    <div class="fn-note">Each booking is assigned to ~1.8 partners and whoever installs it gets the credit — so a partner's <b>efficiency = bookings they installed ÷ bookings assigned to them</b> (a booking given to two partners, installed by one → 0/1 for the other, 1/1 for the winner). Bars = each group's pooled efficiency; <span class="pct">installed / assigned</span> at right.</div>
     <div class="gfunnel" id="eff"></div>
-    <div class="kpis2" id="eff-tiles" style="margin-top:18px"></div>
+    <div class="efftbl-wrap"><table class="efftbl" id="eff-table"></table></div>
     <div class="callout" id="eff-callout">—</div>
   </div>
 
@@ -275,7 +292,7 @@
       <li><b>Funnel stages</b> (per CSP, ≥1) from <code>DBT_CSP.TAS_INSTALL_EXECUTION_CANDIDATES</code> (<code>ETL_CURRENT=TRUE</code>): Slot = <code>CONFIRMED_SLOT_AT</code> · Technician = <code>EXECUTOR_ID</code> · Installed = <code>OTP_VERIFIED</code> / <code>COMPLETED_STEP≥7</code>, joined on <code>CSP_ID</code>.</li>
       <li><b>Scope:</b> installs are measured on the new F1 OS CSP app pipeline (<code>TAS_INSTALL_EXECUTION_CANDIDATES</code>) — the app the MBG banner lives in. All three segments are measured identically within the same July window, so the comparison is like-for-like.</li>
       <li><b>Maturity:</b> installs resolve fast — ~97% land within 3 days of task creation — so this ~4-day window is largely mature, but its newest tasks are still in flight, so install rates are a floor that will edge up.</li>
-      <li><b>Partner efficiency</b> = installs (<code>INSTALLATION_COMPLETED_AT</code>) ÷ tasks handed to the CSP (<code>EXECUTOR_ID IS NOT NULL</code>), per CSP, partners with ≥3 assigned tasks. <b>MBG enrolled</b> = audit done / ENROLLED in the belief-break onboarding audit (461 CSPs); <b>MBG eligible</b> = offered the programme but not yet enrolled (108); <b>Non-MBG</b> = everyone else. <code>partner_id</code>→<code>csp_id</code> via <code>CSP_GATEWAY_SERVICE.CSP_ACCOUNT</code> (active, latest). June = full month; July = 01 Jul → 2 days ago (install-matured).</li>
+      <li><b>Partner efficiency</b> = bookings a partner installed ÷ bookings assigned to them, per partner. In <code>TAS_INSTALL_EXECUTION_CANDIDATES</code> one <code>(CONNECTION_ID, CSP_ID)</code> pair = one assignment; a booking is assigned to ~1.8 partners and exactly one installs it (<code>INSTALLATION_COMPLETED_AT</code>), so a booking given to two partners is 1/1 for the installer and 0/1 for the other. <b>60%+</b> counts partners with ≥3 assigned bookings whose efficiency ≥0.60. <b>MBG launched 1 July</b>, so June is the pre-MBG baseline and July is MBG-live (bucketed by booking creation month; July = 01 Jul → 2 days ago, install-matured). <b>Enrolled</b> = audit done / ENROLLED in the belief-break onboarding audit (461 partners); <b>eligible</b> = offered but not enrolled (108); <b>Non-MBG</b> = everyone else. <code>partner_id</code>→<code>csp_id</code> via <code>CSP_GATEWAY_SERVICE.CSP_ACCOUNT</code> (active, latest).</li>
       <li><b>A vs B is the clean test</b> — both are full sub-populations of the same 425 cohort, so the difference isolates banner engagement. C is a labeled network benchmark. <b>Association, not proof of cause</b> — CSPs who click are likely more engaged to begin with. Auto-refreshes hourly.</li>
     </ul>
   </footer>
@@ -385,34 +402,48 @@
       + `<i>New F1 OS app pipeline only; July is month-to-date with its newest tasks excluded so it matures fairly against June.</i>`, true);
   }
 
-  // partner efficiency — enrolment × 60%+, June vs July
+  // partner efficiency by MBG enrolment — June (pre-MBG) vs July (MBG live)
   if (D.efficiency && D.efficiency.june && D.efficiency.july) {
     const ej = D.efficiency.june, el = D.efficiency.july;
-    const sum = (o,k) => o.enrolled[k]+o.eligible[k]+o.nonmbg[k];
-    const ov = o => ({partners:sum(o,"partners"), ge60:sum(o,"ge60")});
-    const ovj = ov(ej), ovl = ov(el);
-    const pp = (x) => x.partners ? x.ge60/x.partners*100 : 0;
-    const effRow = (name, sub, jx, lx) => row(name, sub, [
-      ["jun", pp(jx), `<b>${nf(jx.ge60)}</b>/${nf(jx.partners)} <span class="pct">· ${pp(jx).toFixed(0)}%</span>`],
-      ["jul", pp(lx), `<b>${nf(lx.ge60)}</b>/${nf(lx.partners)} <span class="pct">· ${pp(lx).toFixed(0)}%</span>`],
-    ]);
-    document.getElementById("eff").innerHTML =
-      effRow("All partners", "any MBG status", ovj, ovl)
-      + effRow("MBG enrolled", "audit done", ej.enrolled, el.enrolled)
-      + effRow("MBG eligible", "offered, not enrolled", ej.eligible, el.eligible)
-      + effRow("Non-MBG", "outside the programme", ej.nonmbg, el.nonmbg);
-    document.getElementById("eff-tiles").innerHTML =
-      `<div class="k2"><div class="l">Partners at 60%+ (all)</div><div class="v">${pp(ovj).toFixed(0)}% <small>Jun</small> · ${pp(ovl).toFixed(0)}% <small>Jul</small></div></div>`
-      + `<div class="k2"><div class="l">Aggregate efficiency · enrolled</div><div class="v">${ej.enrolled.agg_eff}% <small>Jun</small> · ${el.enrolled.agg_eff}% <small>Jul</small></div></div>`
-      + `<div class="k2"><div class="l">Aggregate efficiency · Non-MBG</div><div class="v">${ej.nonmbg.agg_eff}% <small>Jun</small> · ${el.nonmbg.agg_eff}% <small>Jul</small></div></div>`;
-    const enrL = pp(el.enrolled), nonL = pp(el.nonmbg);
+    const s3 = (o,k) => o.enrolled[k]+o.eligible[k]+o.nonmbg[k];
+    const overall = o => { const t=s3(o,"tasks"), i=s3(o,"installs"), p3=s3(o,"partners_ge3"), gg=s3(o,"ge60");
+      return { partners:s3(o,"partners"), tasks:t, installs:i, agg_eff:t?+(i/t*100).toFixed(1):0,
+               partners_ge3:p3, ge60:gg, pct60:p3?+(gg/p3*100).toFixed(1):0 }; };
+    const ovj = overall(ej), ovl = overall(el);
+    const rows = [
+      ["MBG enrolled", "audit done · 461 partners", ej.enrolled, el.enrolled, false],
+      ["MBG eligible", "offered, not enrolled · 108", ej.eligible, el.eligible, false],
+      ["Non-MBG", "outside the programme", ej.nonmbg, el.nonmbg, false],
+      ["Overall", "all assigned partners", ovj, ovl, true],
+    ];
+    // bars — pooled efficiency, shared axis
+    const maxE = Math.max(...rows.flatMap(r => [r[2].agg_eff, r[3].agg_eff]), 1);
+    document.getElementById("eff").innerHTML = rows.map(([name,sub,j,l]) =>
+      row(name, sub, [
+        ["jun", j.agg_eff/maxE*100, `<b>${j.agg_eff}%</b> <span class="pct">· ${nf(j.installs)}/${nf(j.tasks)}</span>`],
+        ["jul", l.agg_eff/maxE*100, `<b>${l.agg_eff}%</b> <span class="pct">· ${nf(l.installs)}/${nf(l.tasks)}</span>`],
+      ])
+    ).join("");
+    // table — precise tasks / installs / efficiency / 60%+ per cohort per month
+    const cells = (x,sep) => `<td class="${sep?'jsep':''}"><b>${nf(x.tasks)}</b></td><td>${nf(x.installs)}</td>`
+      + `<td>${x.agg_eff}%</td><td>${nf(x.ge60)} <span class="mut">/ ${nf(x.partners_ge3)}</span></td>`;
+    document.getElementById("eff-table").innerHTML =
+      `<thead>
+         <tr class="grp"><th></th><th colspan="4" class="jun-c">June · before MBG</th><th colspan="4" class="jul-c jsep">July · MBG live</th></tr>
+         <tr class="cols"><th>Cohort</th><th>Bookings</th><th>Installed</th><th>Eff.</th><th>60%+</th>
+           <th class="jsep">Bookings</th><th>Installed</th><th>Eff.</th><th>60%+</th></tr>
+       </thead><tbody>`
+      + rows.map(([name,sub,j,l,ov]) =>
+          `<tr class="${ov?'ov':''}"><td>${name}<small>${sub}</small></td>${cells(j,false)}${cells(l,true)}</tr>`).join("")
+      + `</tbody>`;
     set("eff-callout",
-      `<b>Enrolled partners run the most efficient — and are pulling ahead.</b> In July <b>${enrL.toFixed(0)}%</b> of `
-      + `<b>MBG-enrolled</b> partners installed 60%+ of the jobs handed to them (up from ${pp(ej.enrolled).toFixed(0)}% in June), `
-      + `versus <b>${nonL.toFixed(0)}%</b> of <span class="c2">Non-MBG</span> partners (down from ${pp(ej.nonmbg).toFixed(0)}%). `
-      + `Their pooled efficiency — installs per assigned job — is <b>${el.enrolled.agg_eff}%</b> vs ${el.nonmbg.agg_eff}% for Non-MBG. `
-      + `Eligible-but-not-enrolled partners sit in between. `
-      + `<i>New F1 OS app pipeline only; July excludes its newest tasks so it matures fairly against June.</i>`, true);
+      `<b>MBG launched 1 July — enrolled partners pulled ahead.</b> Enrolled partners' pooled efficiency edged up `
+      + `<b>${ej.enrolled.agg_eff}% → ${el.enrolled.agg_eff}%</b>, and those at 60%+ efficiency roughly <b>doubled `
+      + `(${nf(ej.enrolled.ge60)} → ${nf(el.enrolled.ge60)} partners</b>, ${ej.enrolled.pct60}% → ${el.enrolled.pct60}% of ≥3-booking partners). `
+      + `Over the same window <span class="c2">Non-MBG</span> partners slipped (${ej.nonmbg.agg_eff}% → ${el.nonmbg.agg_eff}% efficiency; `
+      + `${ej.nonmbg.pct60}% → ${el.nonmbg.pct60}% at 60%+), and eligible-but-not-enrolled stayed lowest. `
+      + `<i>Efficiency is capped low by design — each booking is shared by ~1.8 partners and only one can install it. `
+      + `New F1 OS app pipeline; the 60%+ count floors partners at ≥3 bookings; July excludes its newest tasks so it matures fairly against June.</i>`, true);
   }
 
   // engagement
