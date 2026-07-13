@@ -78,7 +78,10 @@
   .sl .slk { font-size:12.5px; font-weight:650; color:var(--ink); display:flex; align-items:center; gap:7px; }
   .sl .dot { width:11px; height:11px; border-radius:3px; background:var(--c); flex:none; }
   .sl .sln { font-size:26px; font-weight:740; letter-spacing:-.02em; font-variant-numeric:tabular-nums; margin-top:6px; }
+  .sl .sln .u { font-size:13px; color:var(--muted); font-weight:500; letter-spacing:0; }
   .sl .sld { font-size:12px; color:var(--muted); margin-top:2px; }
+  .sl .slx { font-size:12.5px; color:var(--ink-2); font-weight:600; margin-top:9px; padding-top:9px; border-top:1px solid var(--hair-2); font-variant-numeric:tabular-nums; }
+  .sl .slx .m { color:var(--muted); font-weight:500; }
 
   .card { background:var(--surface); border:1px solid var(--hair); border-radius:var(--r); box-shadow:var(--shadow); padding:22px 24px 24px; }
 
@@ -170,17 +173,18 @@
   <!-- SEGMENTS -->
   <div class="section-label">The three segments <span>· defined on the 425 MBG cohort + the active Non-MBG network</span></div>
   <div class="seglegend">
-    <div class="sl a"><div class="slk"><span class="dot"></span>A · MBG · Clicked banner</div><div class="sln" id="sl-a">—</div><div class="sld">eligible CSPs who opened the banner ≥1×</div></div>
-    <div class="sl b"><div class="slk"><span class="dot"></span>B · MBG · Never clicked</div><div class="sln" id="sl-b">—</div><div class="sld">eligible CSPs who never opened it</div></div>
-    <div class="sl c"><div class="slk"><span class="dot"></span>C · Non-MBG</div><div class="sln" id="sl-c">—</div><div class="sld">active CSPs outside the program</div></div>
+    <div class="sl a"><div class="slk"><span class="dot"></span>A · MBG · Clicked banner</div><div class="sln" id="sl-a">—</div><div class="sld">eligible CSPs who opened the banner ≥1×</div><div class="slx" id="slx-a">—</div></div>
+    <div class="sl b"><div class="slk"><span class="dot"></span>B · MBG · Never clicked</div><div class="sln" id="sl-b">—</div><div class="sld">eligible CSPs who never opened it</div><div class="slx" id="slx-b">—</div></div>
+    <div class="sl c"><div class="slk"><span class="dot"></span>C · Non-MBG</div><div class="sln" id="sl-c">—</div><div class="sld">active CSPs outside the program</div><div class="slx" id="slx-c">—</div></div>
   </div>
 
-  <!-- FUNNEL -->
+  <!-- WHO IS WORKING (per CSP) -->
+  <div class="section-label">Who is working <span>· share of each segment's CSPs reaching every stage</span></div>
   <div class="card">
     <div class="fn-head">
-      <div class="fn-title">Down the install funnel — share of each segment reaching every stage</div>
+      <div class="fn-title">People funnel — % of CSPs that reached each stage</div>
     </div>
-    <div class="fn-note">Bar length = % of that segment's CSPs who reached the stage (≥1 connection at that step). Count · % shown at right.</div>
+    <div class="fn-note">Bar length = % of that segment's CSPs who reached the stage at least once. Count · % at right.</div>
     <div class="legendrow">
       <span class="lg a"><span class="dot"></span>A · Clicked</span>
       <span class="lg b"><span class="dot"></span>B · Never clicked</span>
@@ -198,10 +202,20 @@
   </div>
   <div class="callout" id="bl-callout">—</div>
 
-  <!-- BUSINESS VOLUME -->
-  <div class="section-label">Business volume delivered <span>· connections handled → installs completed (per connection)</span></div>
+  <!-- TASK THROUGHPUT (per task) -->
+  <div class="section-label">Is the work getting done <span>· of every task each segment holds, how many reach each stage</span></div>
   <div class="card">
-    <div class="gfunnel" id="volume"></div>
+    <div class="fn-head">
+      <div class="fn-title">Task funnel — % of tasks completed to each stage</div>
+    </div>
+    <div class="fn-note">Base = every task (connection) the segment holds. Bar length = % of those tasks reaching the stage. This shows throughput, not just how many people started.</div>
+    <div class="legendrow">
+      <span class="lg a"><span class="dot"></span>A · Clicked</span>
+      <span class="lg b"><span class="dot"></span>B · Never clicked</span>
+      <span class="lg c"><span class="dot"></span>C · Non-MBG</span>
+    </div>
+    <div class="gfunnel" id="taskfunnel"></div>
+    <div class="callout" id="task-callout">—</div>
   </div>
 
   <!-- ENGAGEMENT -->
@@ -274,19 +288,39 @@
     }))
   ).join("");
 
-  // volume — bar width relative to the largest value in each row
-  const maxConn = Math.max(A.connections,B.connections,C.connections,1);
-  const maxInst = Math.max(A.installs_conn,B.installs_conn,C.installs_conn,1);
-  document.getElementById("volume").innerHTML =
-    row("Connections handled", "jobs assigned to the segment", segs.map(([cls,s]) =>
-      [cls, s.connections/maxConn*100, `<b>${nf(s.connections)}</b>`]))
-    + row("WiFi installs", "completed · % of the segment's connections", segs.map(([cls,s]) =>
-      [cls, s.installs_conn/maxInst*100, `<b>${nf(s.installs_conn)}</b> <span class="pct">· ${(s.connections?s.installs_conn/s.connections*100:0).toFixed(1)}%</span>`]));
+  // segment tile workload: tasks + tasks per active CSP
+  const perCsp = s => s.active ? (s.tasks/s.active).toFixed(1) : "0";
+  set("slx-a", `${nf(A.tasks)} tasks <span class="m">· ${perCsp(A)}/active CSP</span>`, true);
+  set("slx-b", `${nf(B.tasks)} tasks <span class="m">· ${perCsp(B)}/active CSP</span>`, true);
+  set("slx-c", `${nf(C.tasks)} tasks <span class="m">· ${perCsp(C)}/active CSP</span>`, true);
 
-  // spotlight
-  set("sp-a", pct0(A.install,A.base)); set("spd-a", `${nf(A.install)} of ${nf(A.base)} CSPs`);
-  set("sp-b", pct0(B.install,B.base)); set("spd-b", `${nf(B.install)} of ${nf(B.base)} CSPs`);
-  set("sp-c", pct0(C.install,C.base)); set("spd-c", `${nf(C.install)} of ${nf(C.base)} active`);
+  // TASK funnel — bar width = % of that segment's tasks
+  const tstages = [
+    { name:"Tasks held",          sub:"connections assigned", key:"tasks" },
+    { name:"Slot proposed",       sub:"slot offered",         key:"t_slot_prop" },
+    { name:"Slot confirmed",      sub:"customer booked",      key:"t_slot_conf" },
+    { name:"Technician assigned", sub:"executor set",         key:"t_tech" },
+    { name:"Arrived at site",     sub:"reached customer",     key:"t_arrived" },
+    { name:"WiFi installed",      sub:"OTP verified",         key:"t_install" },
+  ];
+  document.getElementById("taskfunnel").innerHTML = tstages.map(st =>
+    row(st.name, st.sub, segs.map(([cls,s]) => {
+      const p = s.tasks ? s[st.key]/s.tasks*100 : 0;
+      return [cls, p, `<b>${nf(s[st.key])}</b> <span class="pct">· ${p.toFixed(0)}%</span>`];
+    }))
+  ).join("");
+  const trA = A.tasks?A.t_install/A.tasks*100:0, trB = B.tasks?B.t_install/B.tasks*100:0, trC = C.tasks?C.t_install/C.tasks*100:0;
+  const txAB = trB ? (trA/trB).toFixed(1) : "—";
+  set("task-callout",
+    `<b>Similar workload, very different throughput.</b> Every segment carries roughly the same load — about `
+    + `<b>${perCsp(A)}–${perCsp(B)} tasks per active CSP</b> — yet clickers complete <b>${trA.toFixed(1)}%</b> of their tasks `
+    + `versus ${trB.toFixed(1)}% (never-clicked) and ${trC.toFixed(1)}% (Non-MBG). Same work in hand; the clickers finish `
+    + `<b>${txAB}× more of it</b>.`, true);
+
+  // spotlight (per-CSP headline + per-task sub)
+  set("sp-a", pct0(A.install,A.base)); set("spd-a", `${nf(A.install)}/${nf(A.base)} CSPs · ${trA.toFixed(1)}% of tasks`);
+  set("sp-b", pct0(B.install,B.base)); set("spd-b", `${nf(B.install)}/${nf(B.base)} CSPs · ${trB.toFixed(1)}% of tasks`);
+  set("sp-c", pct0(C.install,C.base)); set("spd-c", `${nf(C.install)}/${nf(C.base)} active · ${trC.toFixed(1)}% of tasks`);
   set("bl-callout",
     `<b>The banner engagement is what separates the winners.</b> MBG CSPs who never clicked (${pct0(B.install,B.base)}) `
     + `perform almost the same as the Non-MBG network (${pct0(C.install,C.base)}) — being in the MBG list alone doesn't lift installs. `

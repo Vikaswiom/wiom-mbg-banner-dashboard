@@ -1,5 +1,6 @@
--- 3-segment CSP funnel: A=MBG clicked banner, B=MBG never clicked, C=Non-MBG (active)
--- Window from 2026-07-09. Stages via TAS_INSTALL_EXECUTION_CANDIDATES per CSP_ID.
+-- 3-segment funnel: A=MBG clicked banner, B=MBG never clicked, C=Non-MBG (active).
+-- Window from 2026-07-09. Returns BOTH per-CSP flags (who reached a stage) and
+-- per-TASK counts (how many connections/tasks reached a stage) via TAS candidates.
 WITH prof AS (
   SELECT DISTINCT CLEVERTAP_ID, cspid FROM PROD_DB.CLEVERTAP_CSP_API.PROFILE_DATA
 ),
@@ -13,10 +14,16 @@ mbg AS ( SELECT cspid FROM (VALUES ('a0a6y4'),('a0a6y6'),('a0a6y9'),('a0a6z0'),(
 inst AS (
   SELECT CSP_ID AS cspid,
     COUNT(*) AS connections,
-    MAX(CASE WHEN CONFIRMED_SLOT_AT IS NOT NULL THEN 1 ELSE 0 END) AS f_slot,
-    MAX(CASE WHEN EXECUTOR_ID IS NOT NULL THEN 1 ELSE 0 END)       AS f_tech,
-    MAX(CASE WHEN OTP_VERIFIED=TRUE OR COMPLETED_STEP>=7 THEN 1 ELSE 0 END) AS f_install,
-    SUM(CASE WHEN OTP_VERIFIED=TRUE OR COMPLETED_STEP>=7 THEN 1 ELSE 0 END) AS installs_conn
+    -- per-CSP flags (did this CSP reach the stage at least once)
+    MAX(CASE WHEN CONFIRMED_SLOT_AT IS NOT NULL THEN 1 ELSE 0 END)               AS f_slot,
+    MAX(CASE WHEN EXECUTOR_ID IS NOT NULL THEN 1 ELSE 0 END)                     AS f_tech,
+    MAX(CASE WHEN OTP_VERIFIED=TRUE OR COMPLETED_STEP>=7 THEN 1 ELSE 0 END)      AS f_install,
+    -- per-TASK counts (how many of this CSP's tasks reached the stage)
+    SUM(CASE WHEN PROPOSED_SLOT_DATE IS NOT NULL THEN 1 ELSE 0 END)              AS t_slot_prop,
+    SUM(CASE WHEN CONFIRMED_SLOT_AT IS NOT NULL THEN 1 ELSE 0 END)               AS t_slot_conf,
+    SUM(CASE WHEN EXECUTOR_ID IS NOT NULL THEN 1 ELSE 0 END)                     AS t_tech,
+    SUM(CASE WHEN CURRENT_STATE='ARRIVED_AT_SITE' OR COMPLETED_STEP>=1 THEN 1 ELSE 0 END) AS t_arrived,
+    SUM(CASE WHEN OTP_VERIFIED=TRUE OR COMPLETED_STEP>=7 THEN 1 ELSE 0 END)      AS t_install
   FROM PROD_DB.DBT_CSP.TAS_INSTALL_EXECUTION_CANDIDATES
   WHERE ETL_CURRENT=TRUE AND CREATED_AT >= '2026-07-09'
   GROUP BY CSP_ID
@@ -29,12 +36,16 @@ seg AS (
   SELECT i.cspid, 'C_nonmbg' FROM inst i WHERE i.cspid NOT IN (SELECT cspid FROM mbg)
 )
 SELECT s.segment,
-  COUNT(*)                        AS base_csps,
-  COUNT(i.cspid)                  AS active_csps,
-  SUM(COALESCE(i.f_slot,0))       AS slot_csps,
-  SUM(COALESCE(i.f_tech,0))       AS tech_csps,
-  SUM(COALESCE(i.f_install,0))    AS install_csps,
-  SUM(COALESCE(i.connections,0))  AS connections,
-  SUM(COALESCE(i.installs_conn,0))AS installs_conn
+  COUNT(*)                          AS base_csps,
+  COUNT(i.cspid)                    AS active_csps,
+  SUM(COALESCE(i.f_slot,0))         AS slot_csps,
+  SUM(COALESCE(i.f_tech,0))         AS tech_csps,
+  SUM(COALESCE(i.f_install,0))      AS install_csps,
+  SUM(COALESCE(i.connections,0))    AS connections,
+  SUM(COALESCE(i.t_slot_prop,0))    AS t_slot_prop,
+  SUM(COALESCE(i.t_slot_conf,0))    AS t_slot_conf,
+  SUM(COALESCE(i.t_tech,0))         AS t_tech,
+  SUM(COALESCE(i.t_arrived,0))      AS t_arrived,
+  SUM(COALESCE(i.t_install,0))      AS t_install
 FROM seg s LEFT JOIN inst i ON i.cspid = s.cspid
 GROUP BY s.segment ORDER BY s.segment

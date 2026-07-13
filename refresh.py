@@ -65,9 +65,14 @@ def main():
         s = seg[key]
         return {
             "base": g(s, "BASE_CSPS"), "active": g(s, "ACTIVE_CSPS"),
+            # per-CSP: reached the stage at least once
             "slot": g(s, "SLOT_CSPS"), "tech": g(s, "TECH_CSPS"),
             "install": g(s, "INSTALL_CSPS"),
-            "connections": g(s, "CONNECTIONS"), "installs_conn": g(s, "INSTALLS_CONN"),
+            # per-TASK: how many connections/tasks reached the stage
+            "tasks": g(s, "CONNECTIONS"),
+            "t_slot_prop": g(s, "T_SLOT_PROP"), "t_slot_conf": g(s, "T_SLOT_CONF"),
+            "t_tech": g(s, "T_TECH"), "t_arrived": g(s, "T_ARRIVED"),
+            "t_install": g(s, "T_INSTALL"),
         }
 
     now = datetime.now(IST)
