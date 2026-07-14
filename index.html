@@ -199,8 +199,8 @@
       <span class="tag">Last updated <b id="m-updated">—</b></span>
       <span class="tag">Window <b id="m-window">—</b></span>
       <span class="tag">Banner live for <b id="m-live">—</b> MBG CSPs</span>
-      <span class="tag">Banner clicked by <b id="m-clicked">—</b> CSPs</span>
-      <span class="tag"><b id="m-clicks">—</b> total clicks · <b id="m-per">—</b>× each</span>
+      <span class="tag">Banner clicked · <b id="m-clicked">—</b> CSPs ≈ <b id="m-clicked-prof">—</b> CleverTap profiles</span>
+      <span class="tag"><b id="m-clicks">—</b> total banner clicks</span>
     </div>
   </header>
 
@@ -322,8 +322,8 @@
   set("m-window", D.window_start + " → " + D.window_end);
   set("m-live", nf(D.live));
   set("m-clicked", nf(D.engagement.clicked));
+  set("m-clicked-prof", nf(D.engagement.ct_profiles));
   set("m-clicks", nf(D.engagement.clicks));
-  set("m-per", (D.engagement.clicks / D.engagement.clicked).toFixed(1));
 
   // hero — task-level
   document.querySelector("#hero-x").innerHTML =
