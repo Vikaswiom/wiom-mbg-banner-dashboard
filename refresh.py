@@ -57,6 +57,7 @@ def main():
         open(os.path.join(REPO, "query_segment_funnel.sql")).read())}
     eff = {(r["PERIOD"], r["CATEGORY"]): r for r in run_sql(
         open(os.path.join(REPO, "query_efficiency.sql")).read())}
+    roster = run_sql(open(os.path.join(REPO, "query_enrolled_roster.sql")).read())[0]
 
     def g(d, k):
         return int(d.get(k) or 0)
@@ -93,6 +94,17 @@ def main():
             "clicked": seg_obj("A_clicked"),
             "noclick": seg_obj("B_noclick"),
             "nonmbg": seg_obj("C_nonmbg"),
+        },
+        # enrolled roster funnel: full 429 → with-leads (292) → 60%+/- → no-lead split
+        "enrolled_roster": {
+            "total": g(roster, "ENROLLED_TOTAL"),
+            "with_leads": g(roster, "WITH_LEADS"),
+            "eff_60_plus": g(roster, "EFF_60_PLUS"),
+            "eff_60_minus": g(roster, "EFF_60_MINUS"),
+            "pending_only": g(roster, "PENDING_ONLY"),
+            "no_activity": g(roster, "NO_ACTIVITY"),
+            "installs": g(roster, "TOTAL_INSTALLS"),
+            "leads": g(roster, "TOTAL_LEADS"),
         },
         "efficiency": {
             period: {cat: {
