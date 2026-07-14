@@ -281,7 +281,7 @@
         <span class="lg jul"><span class="dot"></span>July · MBG live</span>
       </div>
     </div>
-    <div class="fn-note">The MBG guarantee rewards a partner for installing <b>60%+ of their leads</b>. A partner's <b>efficiency = leads installed ÷ leads that reached an end state</b> (a slot-confirmed lead that finished — installed or terminally cancelled; still-open leads aren't counted yet). <b>60%+ = "secured"</b>, cleared the gate. Bars = each group's pooled efficiency; <span class="pct">installed / leads</span> at right.</div>
+    <div class="fn-note">The MBG guarantee rewards a partner for installing <b>60%+ of their leads</b>. A partner's <b>efficiency = leads installed ÷ leads that reached an end state</b> (a slot-confirmed lead that finished — installed or terminally cancelled; still-open leads aren't counted yet). <b>60%+ = "secured"</b>, cleared the gate — counted against the <b>whole cohort</b> (429 enrolled / 140 eligible), so a partner with no resolved leads counts as not-yet-cleared. Bars = each group's pooled efficiency; <span class="pct">installed / leads</span> at right.</div>
     <div class="mini-label">July — the four cohorts <span>· current MBG month · % of resolved leads installed</span></div>
     <div class="jtiles" id="eff-jtiles"></div>
     <div class="efftbl-wrap"><table class="efftbl" id="eff-table"></table></div>
@@ -397,18 +397,23 @@
       return { partners:p, leads:ld, installs:i, agg_eff:ld?+(i/ld*100).toFixed(1):0,
                secured:sc, pct_secured:p?+(sc/p*100).toFixed(1):0 }; };
     const ovj = overall(ej), ovl = overall(el);
+    // 60%+ denominator = the FULL cohort roster (429 enrolled, 140 eligible) — a partner with
+    // no resolved leads still hasn't cleared the gate. Non-MBG has no roster → its active base.
+    const NONMBG_BASE = el.nonmbg.partners;
+    const baseOf = cls => cls==='a' ? 429 : cls==='b' ? 140 : cls==='c' ? NONMBG_BASE : (429 + 140 + NONMBG_BASE);
+    const secPct = (cls,x) => { const b = baseOf(cls); return b ? (x.secured / b * 100).toFixed(1) : "0"; };
     // July at a glance — 4 cohort tiles
     const jtiles = [
-      ["a","MBG enrolled","audit done", el.enrolled],
-      ["b","MBG eligible","not enrolled", el.eligible],
-      ["c","Non-MBG","outside programme", el.nonmbg],
-      ["o","Overall","all partners w/ leads", ovl],
+      ["a","MBG enrolled","of 429 enrolled", el.enrolled],
+      ["b","MBG eligible","of 140 eligible", el.eligible],
+      ["c","Non-MBG","of active base", el.nonmbg],
+      ["o","Overall","all cohorts", ovl],
     ];
     document.getElementById("eff-jtiles").innerHTML = jtiles.map(([cls,name,sub,x]) =>
       `<div class="jt ${cls}"><div class="jl">${name}<small>${sub}</small></div>`
       + `<div class="jv">${x.agg_eff}%</div>`
       + `<div class="js">${nf(x.installs)} of ${nf(x.leads)} leads installed · ${nf(x.partners)} partners w/ leads</div>`
-      + `<div class="jf"><b>${nf(x.secured)}</b> of ${nf(x.partners)} cleared 60% <span class="mut">· ${x.pct_secured}%</span></div></div>`
+      + `<div class="jf"><b>${nf(x.secured)}</b> of ${nf(baseOf(cls))} cleared 60% <span class="mut">· ${secPct(cls,x)}%</span></div></div>`
     ).join("");
     // July-only 4-cohort table (June has no MBG split, so it isn't broken out)
     const jrows = [
@@ -418,11 +423,11 @@
       ["o","Overall","all partners with leads", ovl],
     ];
     document.getElementById("eff-table").innerHTML =
-      `<thead><tr class="cols"><th>July cohort</th><th>Leads</th><th>Installed</th><th>Eff.</th><th>60%+ secured</th></tr></thead><tbody>`
+      `<thead><tr class="cols"><th>July cohort</th><th>Leads</th><th>Installed</th><th>Eff.</th><th>60%+ of cohort</th></tr></thead><tbody>`
       + jrows.map(([cls,name,sub,x]) =>
           `<tr class="${cls==='o'?'ov':''}"><td>${name}<small>${sub}</small></td>`
           + `<td><b>${nf(x.leads)}</b></td><td>${nf(x.installs)}</td><td>${x.agg_eff}%</td>`
-          + `<td>${nf(x.secured)} <span class="mut">/ ${nf(x.partners)} · ${x.pct_secured}%</span></td></tr>`).join("")
+          + `<td>${nf(x.secured)} <span class="mut">/ ${nf(baseOf(cls))} · ${secPct(cls,x)}%</span></td></tr>`).join("")
       + `</tbody>`;
     // overall-only before/after bars — June had no MBG cohorts, so only the network total compares
     document.getElementById("eff").innerHTML =
@@ -431,7 +436,7 @@
     set("eff-callout",
       `<b>Enrolled partners are outperforming — the network total hasn't moved yet.</b> In July, <b>MBG-enrolled</b> partners install `
       + `<b>${el.enrolled.agg_eff}%</b> of their resolved leads — above the ~${ovl.agg_eff}% network average and well above <span class="c2">Non-MBG</span> `
-      + `partners (${el.nonmbg.agg_eff}%). <b>${nf(el.enrolled.secured)} enrolled partners</b> (${el.enrolled.pct_secured}%) have cleared the 60% gate. `
+      + `partners (${el.nonmbg.agg_eff}%). <b>${nf(el.enrolled.secured)} of 429 enrolled partners</b> (${secPct("a",el.enrolled)}%) have cleared the 60% gate. `
       + `At the <b>network level</b>, overall efficiency is essentially flat vs June (<b>${ovj.agg_eff}% → ${ovl.agg_eff}%</b>) — MBG is lifting its enrolled partners, not (yet) the whole base. `
       + `<i>June had no MBG programme, so only the network total is comparable month-over-month; the four-cohort split is a July-only view. Same calc as the CSP-facing MBG banner (Kamai Kavach) — a lead counts once it reaches an end state. July is still filling in.</i>`, true);
   }
