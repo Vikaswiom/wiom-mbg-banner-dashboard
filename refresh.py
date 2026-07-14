@@ -55,8 +55,6 @@ def main():
     csp = by_group(run_sql(open(os.path.join(REPO, "query_csp_funnel.sql")).read()))
     seg = {r["SEGMENT"]: r for r in run_sql(
         open(os.path.join(REPO, "query_segment_funnel.sql")).read())}
-    tiers = {r["PERIOD"]: r for r in run_sql(
-        open(os.path.join(REPO, "query_completion_tiers.sql")).read())}
     eff = {(r["PERIOD"], r["CATEGORY"]): r for r in run_sql(
         open(os.path.join(REPO, "query_efficiency.sql")).read())}
 
@@ -96,12 +94,6 @@ def main():
             "noclick": seg_obj("B_noclick"),
             "nonmbg": seg_obj("C_nonmbg"),
         },
-        "tiers": {p.lower(): {
-            "csps": g(t, "CSPS"), "tasks": g(t, "TASKS"), "installs": g(t, "INSTALLS"),
-            "overall_rate": float(t.get("OVERALL_RATE") or 0),
-            "b": [g(t, "B0"), g(t, "B1"), g(t, "B2"), g(t, "B3"), g(t, "B4"), g(t, "B5")],
-            "ge60": g(t, "GE60"),
-        } for p, t in tiers.items()},
         "efficiency": {
             period: {cat: {
                 "partners": g(eff.get((period, cat), {}), "PARTNERS"),   # with leads (denom>0)
